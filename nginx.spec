@@ -21,7 +21,6 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:      pcre-devel,zlib-devel,openssl-devel,perl(ExtUtils::Embed)
 BuildRequires:      libxslt-devel,GeoIP-devel,gd-devel
-Requires:           pcre,zlib,openssl,GeoIP,gd
 Requires:           perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 # for /usr/sbin/useradd
 Requires(pre):      shadow-utils
