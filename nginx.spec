@@ -9,7 +9,7 @@
 
 Name:           nginx
 Version:        0.8.54
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
 
@@ -23,6 +23,8 @@ BuildRequires:      pcre-devel,zlib-devel,openssl-devel,perl-devel,perl(ExtUtils
 BuildRequires:      libxslt-devel,GeoIP-devel,gd-devel
 Requires:           pcre,openssl,GeoIP,gd
 Requires:           perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+# for aio
+Requires:           kernel >= 2.6.18-1811
 # for /usr/sbin/useradd
 Requires(pre):      shadow-utils
 Requires(post):     chkconfig
@@ -190,7 +192,7 @@ fi
 
 
 %changelog
-* Wed Apr 27 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.54-1
+* Wed Apr 27 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.54-2
 - Update to new legacy stable 0.8.54
 
 * Sun Oct 31 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.53-2
