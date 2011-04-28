@@ -8,7 +8,7 @@
 %define nginx_webroot   %{nginx_datadir}/html
 
 Name:           nginx
-Version:        0.8.53
+Version:        0.8.54
 Release:        1%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
@@ -22,6 +22,8 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:      pcre-devel,zlib-devel,openssl-devel,perl(ExtUtils::Embed)
 BuildRequires:      libxslt-devel,GeoIP-devel,gd-devel
 Requires:           perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+# for aio
+Requires:           kernel >= 2.6.18-181
 # for /usr/sbin/useradd
 Requires(pre):      shadow-utils
 Requires(post):     chkconfig
@@ -189,6 +191,9 @@ fi
 
 
 %changelog
+* Wed Apr 27 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.54-1
+- Update to new legacy stable 0.8.54
+
 * Sun Oct 31 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.53-1
 - Update to new stable 0.8.53 since 0.6.x branch is no longer supported
 
