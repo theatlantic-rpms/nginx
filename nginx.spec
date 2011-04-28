@@ -23,6 +23,8 @@ BuildRequires:      pcre-devel,zlib-devel,openssl-devel,perl-devel,perl(ExtUtils
 BuildRequires:      libxslt-devel,GeoIP-devel,gd-devel
 Requires:           pcre,openssl,GeoIP,gd
 Requires:           perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+# for aio
+Requires:           kernel >= 2.6.18-181
 # for /usr/sbin/useradd
 Requires(pre):      shadow-utils
 Requires(post):     chkconfig
