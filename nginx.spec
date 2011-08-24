@@ -54,8 +54,6 @@ proxy server written by Igor Sysoev.
 %prep
 %setup -q
 
-%patch0 -p0
-
 %build
 # nginx does not utilize a standard configure script.  It has its own
 # and the standard configure options cause the nginx configure script
