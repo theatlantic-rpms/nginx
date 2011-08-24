@@ -190,7 +190,7 @@ fi
 
 %changelog
 * Wed Aug 24 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.0-1
-- Update to 0.8.54
+- Update to 1.0.0
 
 * Wed Apr 27 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.54-1
 - Update to 0.8.54
