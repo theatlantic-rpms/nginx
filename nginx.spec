@@ -8,7 +8,7 @@
 %define nginx_webroot   %{nginx_datadir}/html
 
 Name:           nginx
-Version:        0.8.54
+Version:        1.0.0
 Release:        1%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
@@ -46,10 +46,6 @@ Source101:  poweredby.png
 Source102:  nginx-logo.png
 Source103:  50x.html
 Source104:  404.html
-
-# removes -Werror in upstream build scripts.  -Werror conflicts with
-# -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
-Patch0:     nginx-auto-cc-gcc.patch
 
 %description
 Nginx [engine x] is an HTTP(S) server, HTTP(S) reverse proxy and IMAP/POP3
@@ -193,6 +189,9 @@ fi
 
 
 %changelog
+* Wed Aug 24 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.0-1
+- Update to 0.8.54
+
 * Wed Apr 27 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.54-1
 - Update to 0.8.54
 
