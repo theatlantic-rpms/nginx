@@ -9,7 +9,7 @@
 
 Name:           nginx
 Version:        1.0.0
-Release:        1%{?dist}
+Release:        5%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
 
@@ -23,8 +23,6 @@ BuildRequires:      pcre-devel,zlib-devel,openssl-devel,perl-devel,perl(ExtUtils
 BuildRequires:      libxslt-devel,GeoIP-devel,gd-devel
 Requires:           pcre,openssl,GeoIP,gd
 Requires:           perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-# for the aio option
-Requires:           kernel >= 2.6.18-181
 # for /usr/sbin/useradd
 Requires(pre):      shadow-utils
 Requires(post):     chkconfig
@@ -47,12 +45,18 @@ Source102:  nginx-logo.png
 Source103:  50x.html
 Source104:  404.html
 
+# removes -Werror in upstream build scripts.  -Werror conflicts with
+# -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
+Patch0:     nginx-auto-cc-gcc.patch
+
 %description
 Nginx [engine x] is an HTTP(S) server, HTTP(S) reverse proxy and IMAP/POP3
 proxy server written by Igor Sysoev.
 
 %prep
 %setup -q
+
+%patch0 -p0
 
 %build
 # nginx does not utilize a standard configure script.  It has its own
@@ -187,11 +191,10 @@ fi
 
 
 %changelog
-* Wed Aug 24 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.0-1
-- Update to 1.0.0
 
-* Wed Apr 27 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.54-1
-- Update to 0.8.54
+
+* Fri Jun 17 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.0-5
+- Update fedora Repo to 1.0.0
 
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.53-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
