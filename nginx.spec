@@ -8,8 +8,8 @@
 %define nginx_webroot   %{nginx_datadir}/html
 
 Name:           nginx
-Version:        1.0.0
-Release:        5%{?dist}
+Version:        1.0.5
+Release:        1%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
 
@@ -193,8 +193,8 @@ fi
 %changelog
 
 
-* Fri Jun 17 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.0-5
-- Update fedora Repo to 1.0.0
+* Fri Aug 26 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.5-1
+- Update to Version 1.0.5 Stable Release
 
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.53-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
