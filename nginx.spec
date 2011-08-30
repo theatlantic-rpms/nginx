@@ -9,7 +9,7 @@
 
 Name:           nginx
 Version:        0.8.55
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
 
@@ -187,6 +187,10 @@ fi
 
 
 %changelog
+* Mon Aug 29 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.55-2
+- update to 0.8.55
+- fix bug #717078
+
 * Mon Feb 15 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.6.39-4
 - change directory ownership of log dir to root:root
 
