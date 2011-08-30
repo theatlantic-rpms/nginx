@@ -8,7 +8,7 @@
 %define nginx_webroot   %{nginx_datadir}/html
 
 Name:           nginx
-Version:        0.8.54
+Version:        0.8.55
 Release:        1%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
@@ -32,7 +32,7 @@ Requires(preun):    chkconfig, initscripts
 Requires(postun):   initscripts
 Provides:           webserver
 
-Source0:    http://sysoev.ru/nginx/nginx-%{version}.tar.gz
+Source0:    http://nginx.org/download/nginx-%{version}.tar.gz
 Source1:    %{name}.init
 Source2:    %{name}.logrotate
 Source3:    virtual.conf
@@ -191,6 +191,10 @@ fi
 
 
 %changelog
+* Mon Aug 29 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.55-1
+- Update to legacy stable 0.8.55
+- fix bug #717078
+
 * Wed Apr 27 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.54-1
 - Update to new legacy stable 0.8.54
 

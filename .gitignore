@@ -5,3 +5,4 @@ x86_64/
 .*.log
 *swp
 *.rpm
+/nginx-0.8.55.tar.gz
