@@ -5,11 +5,12 @@
 %define nginx_logdir    %{_localstatedir}/log/nginx
 %define nginx_confdir   %{_sysconfdir}/nginx
 %define nginx_datadir   %{_datadir}/nginx
+%define nginx_webroot   %{nginx_datadir}/html
 
 Name:           nginx
-Version:        0.6.39
-Release:        4%{?dist}
-Summary:        Robust, small and high performance http and reverse proxy server
+Version:        0.8.55
+Release:        1%{?dist}
+Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
 
 # BSD License (two clause)
@@ -24,21 +25,24 @@ Requires(pre):      %{_sbindir}/useradd
 Requires(post):     /sbin/chkconfig
 Requires(preun):    /sbin/chkconfig, /sbin/service
 Requires(postun):   /sbin/service
+Provides:           webserver
 
-Source0:    http://sysoev.ru/nginx/nginx-%{version}.tar.gz
+Source0:    http://nginx.org/download/nginx-%{version}.tar.gz
 Source1:    %{name}.init
 Source2:    %{name}.logrotate
+Source3:    virtual.conf
+Source4:    ssl.conf
+Source5:    %{name}.sysconfig
+Source6:    nginx.conf
+Source100:  index.html
+Source101:  poweredby.png
+Source102:  nginx-logo.png
+Source103:  50x.html
+Source104:  404.html
 
 # removes -Werror in upstream build scripts.  -Werror conflicts with
 # -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
 Patch0:     nginx-auto-cc-gcc.patch
-
-# configuration patch to match all the Fedora paths for logs, pid files
-# etc.
-Patch1:     nginx-conf.patch
-
-# patch for http://www.kb.cert.org/vuls/id/120541
-Patch2:     nginx-cve-2009-3555.patch
 
 %description
 Nginx [engine x] is an HTTP(S) server, HTTP(S) reverse proxy and IMAP/POP3
@@ -48,8 +52,6 @@ proxy server written by Igor Sysoev.
 %setup -q
 
 %patch0 -p0
-%patch1 -p0
-%patch2 -p0
 
 %build
 # nginx does not utilize a standard configure script.  It has its own
@@ -69,18 +71,28 @@ export DESTDIR=%{buildroot}
     --http-client-body-temp-path=%{nginx_home_tmp}/client_body \
     --http-proxy-temp-path=%{nginx_home_tmp}/proxy \
     --http-fastcgi-temp-path=%{nginx_home_tmp}/fastcgi \
+    --http-uwsgi-temp-path=%{nginx_home_tmp}/uwsgi \
+    --http-scgi-temp-path=%{nginx_home_tmp}/scgi \
     --pid-path=%{_localstatedir}/run/%{name}.pid \
     --lock-path=%{_localstatedir}/lock/subsys/%{name} \
     --with-http_ssl_module \
     --with-http_realip_module \
     --with-http_addition_module \
+    --with-http_xslt_module \
+    --with-http_image_filter_module \
+    --with-http_geoip_module \
     --with-http_sub_module \
     --with-http_dav_module \
     --with-http_flv_module \
+    --with-http_gzip_static_module \
+    --with-http_random_index_module \
+    --with-http_secure_link_module \
+    --with-http_degradation_module \
     --with-http_stub_status_module \
     --with-http_perl_module \
     --with-mail \
     --with-mail_ssl_module \
+    --with-ipv6 \
     --with-cc-opt="%{optflags} $(pcre-config --cflags)"
 make %{?_smp_mflags} 
 
@@ -96,8 +108,14 @@ find %{buildroot} -type f -name '*.so' -exec chmod 0755 {} \;
 chmod 0755 %{buildroot}%{_sbindir}/nginx
 %{__install} -p -D -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 %{__install} -p -D -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+%{__install} -p -D -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
+%{__install} -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.d
+%{__install} -p -m 0644 %{SOURCE3} %{SOURCE4} %{buildroot}%{nginx_confdir}/conf.d
+%{__install} -p -m 0644 %{SOURCE6} %{buildroot}%{nginx_confdir}
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_home_tmp}
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_logdir}
+%{__install} -p -d -m 0755 %{buildroot}%{nginx_webroot}
+%{__install} -p -m 0644 %{SOURCE100} %{SOURCE101} %{SOURCE102} %{SOURCE103} %{SOURCE104} %{buildroot}%{nginx_webroot}
 
 # convert to UTF-8 all files that give warnings.
 for textfile in CHANGES
@@ -111,10 +129,14 @@ done
 rm -rf %{buildroot}
 
 %pre
-%{_sbindir}/useradd -c "Nginx user" -s /bin/false -r -d %{nginx_home} %{nginx_user} 2>/dev/null || :
+if [ $1 == 1 ]; then
+    %{_sbindir}/useradd -c "Nginx user" -s /bin/false -r -d %{nginx_home} %{nginx_user} 2>/dev/null || :
+fi
 
 %post
-/sbin/chkconfig --add %{name}
+if [ $1 == 1 ]; then
+    /sbin/chkconfig --add %{name}
+fi
 
 %preun
 if [ $1 = 0 ]; then
@@ -130,24 +152,31 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc LICENSE CHANGES README
-%dir %{nginx_datadir}
-%dir %{nginx_datadir}/html
-%{_datadir}/%{name}/*/*
+%{nginx_datadir}/
 %{_sbindir}/%{name}
 %{_mandir}/man3/%{name}.3pm.gz
 %{_initrddir}/%{name}
 %dir %{nginx_confdir}
+%dir %{nginx_confdir}/conf.d
 %dir %{nginx_logdir}
+%config(noreplace) %{nginx_confdir}/conf.d/*.conf
 %config(noreplace) %{nginx_confdir}/win-utf
 %config(noreplace) %{nginx_confdir}/%{name}.conf.default
 %config(noreplace) %{nginx_confdir}/mime.types.default
+%config(noreplace) %{nginx_confdir}/fastcgi.conf
+%config(noreplace) %{nginx_confdir}/fastcgi.conf.default
+%config(noreplace) %{nginx_confdir}/fastcgi_params
+%config(noreplace) %{nginx_confdir}/fastcgi_params.default
+%config(noreplace) %{nginx_confdir}/scgi_params
+%config(noreplace) %{nginx_confdir}/scgi_params.default
+%config(noreplace) %{nginx_confdir}/uwsgi_params
+%config(noreplace) %{nginx_confdir}/uwsgi_params.default
 %config(noreplace) %{nginx_confdir}/koi-win
 %config(noreplace) %{nginx_confdir}/koi-utf
 %config(noreplace) %{nginx_confdir}/%{name}.conf
 %config(noreplace) %{nginx_confdir}/mime.types
-%config(noreplace) %{nginx_confdir}/fastcgi_params
-%config(noreplace) %{nginx_confdir}/fastcgi_params.default
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %dir %{perl_vendorarch}/auto/%{name}
 %{perl_vendorarch}/%{name}.pm
 %{perl_vendorarch}/auto/%{name}/%{name}.so
