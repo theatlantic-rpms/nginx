@@ -19,8 +19,10 @@ License:        BSD
 URL:            http://nginx.net/ 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:      pcre-devel,zlib-devel,openssl-devel
+BuildRequires:      pcre-devel,zlib-devel,openssl-devel,perl(ExtUtils::Embed)
+BuildRequires:      libxslt-devel,GeoIP-devel,gd-devel
 Requires:           pcre,zlib,openssl
+Requires:           perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires(pre):      %{_sbindir}/useradd
 Requires(post):     /sbin/chkconfig
 Requires(preun):    /sbin/chkconfig, /sbin/service
