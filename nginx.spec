@@ -8,7 +8,7 @@
 %define nginx_webroot   %{nginx_datadir}/html
 
 Name:           nginx
-Version:        1.0.5
+Version:        1.0.8
 Release:        1%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
@@ -191,6 +191,9 @@ fi
 
 
 %changelog
+* Thu Oct 27 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.8-1
+- Update to new 1.0.8 stable release
+
 * Wed Apr 27 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.5-1
 - Update to new 1.0.5 stable release
 
