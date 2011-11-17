@@ -8,7 +8,7 @@
 %define nginx_webroot   %{nginx_datadir}/html
 
 Name:           nginx
-Version:        1.0.8
+Version:        1.0.10
 Release:        1%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
@@ -31,7 +31,7 @@ Requires(preun):    chkconfig, initscripts
 Requires(postun):   initscripts
 Provides:           webserver
 
-Source0:    http://sysoev.ru/nginx/nginx-%{version}.tar.gz
+Source0:    http://nginx.org/download/nginx-%{version}.tar.gz
 Source1:    %{name}.init
 Source2:    %{name}.logrotate
 Source3:    virtual.conf
@@ -191,11 +191,24 @@ fi
 
 
 %changelog
+* Thu Nov 17 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.10-1
+- Bugfix: a segmentation fault might occur in a worker process if resolver got a big DNS response. Thanks to Ben Hawkes.
+- Bugfix: in cache key calculation if internal MD5 implementation wasused; the bug had appeared in 1.0.4.
+- Bugfix: the module ngx_http_mp4_module sent incorrect "Content-Length" response header line if the "start" argument was used. Thanks to Piotr Sikora.
 * Thu Oct 27 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.8-1
 - Update to new 1.0.8 stable release
 
 * Fri Aug 26 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.5-1
-- Update to Version 1.0.5 Stable Release
+- Update nginx to Latest Stable Release
+
+* Fri Jun 17 2011 Marcela Mašláňová <mmaslano@redhat.com> - 1.0.0-3
+- Perl mass rebuild
+
+* Thu Jun 09 2011 Marcela Mašláňová <mmaslano@redhat.com> - 1.0.0-2
+- Perl 5.14 mass rebuild
+
+* Wed Apr 27 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 1.0.0-1
+- Update to 1.0.0
 
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.53-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
