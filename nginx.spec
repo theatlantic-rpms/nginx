@@ -8,7 +8,7 @@
 %define nginx_webroot   %{nginx_datadir}/html
 
 Name:           nginx
-Version:        1.0.8
+Version:        1.0.10
 Release:        1%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
@@ -191,6 +191,10 @@ fi
 
 
 %changelog
+* Thu Nov 17 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.10-1
+- Bugfix: a segmentation fault might occur in a worker process if resolver got a big DNS response. Thanks to Ben Hawkes.
+- Bugfix: in cache key calculation if internal MD5 implementation wasused; the bug had appeared in 1.0.4.
+- Bugfix: the module ngx_http_mp4_module sent incorrect "Content-Length" response header line if the "start" argument was used. Thanks to Piotr Sikora.
 * Thu Oct 27 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.8-1
 - Update to new 1.0.8 stable release
 
