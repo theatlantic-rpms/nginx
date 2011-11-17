@@ -8,7 +8,7 @@
 %define nginx_webroot   %{nginx_datadir}/html
 
 Name:           nginx
-Version:        1.0.8
+Version:        1.0.10
 Release:        1%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
@@ -23,7 +23,6 @@ BuildRequires:      pcre-devel,zlib-devel,openssl-devel,perl-devel,perl(ExtUtils
 BuildRequires:      libxslt-devel,GeoIP-devel,gd-devel
 Requires:           pcre,openssl,GeoIP,gd
 Requires:           perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-Requires:           kernel >= 2.6.18-181
 # for /usr/sbin/useradd
 Requires(pre):      shadow-utils
 Requires(post):     chkconfig
@@ -32,13 +31,14 @@ Requires(preun):    chkconfig, initscripts
 Requires(postun):   initscripts
 Provides:           webserver
 
-Source0:    http://sysoev.ru/nginx/nginx-%{version}.tar.gz
+Source0:    http://nginx.org/download/nginx-%{version}.tar.gz
 Source1:    %{name}.init
 Source2:    %{name}.logrotate
 Source3:    virtual.conf
 Source4:    ssl.conf
 Source5:    %{name}.sysconfig
 Source6:    nginx.conf
+Source7:    default.conf
 Source100:  index.html
 Source101:  poweredby.png
 Source102:  nginx-logo.png
@@ -100,7 +100,7 @@ export DESTDIR=%{buildroot}
     --with-mail_ssl_module \
     --with-ipv6 \
     --with-cc-opt="%{optflags} $(pcre-config --cflags)" \
-    --with-cc-opt="%{optflags} $(pcre-config --cflags)"
+    --with-ld-opt="-Wl,-E" # so the perl module finds its symbols
 make %{?_smp_mflags} 
 
 %install
@@ -116,7 +116,7 @@ chmod 0755 %{buildroot}%{_sbindir}/nginx
 %{__install} -p -D -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 %{__install} -p -D -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.d
-%{__install} -p -m 0644 %{SOURCE3} %{SOURCE4} %{buildroot}%{nginx_confdir}/conf.d
+%{__install} -p -m 0644 %{SOURCE3} %{SOURCE4} %{SOURCE7} %{buildroot}%{nginx_confdir}/conf.d
 %{__install} -p -m 0644 %{SOURCE6} %{buildroot}%{nginx_confdir}
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_home_tmp}
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_logdir}
@@ -191,21 +191,55 @@ fi
 
 
 %changelog
+* Thu Nov 17 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.10-1
+- Bugfix: a segmentation fault might occur in a worker process if resolver got a big DNS response. Thanks to Ben Hawkes.
+- Bugfix: in cache key calculation if internal MD5 implementation wasused; the bug had appeared in 1.0.4.
+- Bugfix: the module ngx_http_mp4_module sent incorrect "Content-Length" response header line if the "start" argument was used. Thanks to Piotr Sikora.
 * Thu Oct 27 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.8-1
 - Update to new 1.0.8 stable release
 
-* Wed Apr 27 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.5-1
-- Update to new 1.0.5 stable release
+* Fri Aug 26 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.5-1
+- Update nginx to Latest Stable Release
 
-* Wed Apr 27 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.54-1
-- Update to new legacy stable 0.8.54
+* Fri Jun 17 2011 Marcela Mašláňová <mmaslano@redhat.com> - 1.0.0-3
+- Perl mass rebuild
+
+* Thu Jun 09 2011 Marcela Mašláňová <mmaslano@redhat.com> - 1.0.0-2
+- Perl 5.14 mass rebuild
+
+* Wed Apr 27 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 1.0.0-1
+- Update to 1.0.0
+
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.53-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Sun Dec 12 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.53.5
+- Extract out default config into its own file (bug #635776)
+
+* Sun Dec 12 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.53-4
+- Revert ownership of log dir
+
+* Sun Dec 12 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.53-3
+- Change ownership of /var/log/nginx to be 0700 nginx:nginx
+- update init script to use killproc -p
+- add reopen_logs command to init script
+- update init script to use nginx -q option
+
+* Sun Oct 31 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.53-2
+- Fix linking of perl module
 
 * Sun Oct 31 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.53-1
 - Update to new stable 0.8.53
 
+* Sat Jul 31 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.7.67-2
+- add Provides: webserver (bug #619693)
+
 * Sun Jun 20 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.7.67-1
 - Update to new stable 0.7.67
 - fix bugzilla #591543
+
+* Tue Jun 01 2010 Marcela Maslanova <mmaslano@redhat.com> - 0.7.65-2
+- Mass rebuild with perl-5.12.0
 
 * Mon Feb 15 2010 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.7.65-1
 - Update to new stable 0.7.65
