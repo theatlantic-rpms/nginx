@@ -1,12 +1,7 @@
-nginx-0.8.53.tar.gz
 *~
 nginx*/
 x86_64/
 .*.log
 *swp
 *.rpm
-/nginx-0.8.54.tar.gz
-/nginx-1.0.0.tar.gz
-/nginx-1.0.5.tar.gz
-/nginx-1.0.8.tar.gz
-/nginx-1.0.10.tar.gz
+/nginx-1.0.12.tar.gz
