@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.13
-Release:           1%{?dist}
+Release:           2%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -44,7 +44,6 @@ BuildRequires:     pcre-devel
 BuildRequires:     perl-devel
 BuildRequires:     perl(ExtUtils::Embed)
 BuildRequires:     zlib-devel
-BuildRequires:     systemd-units
 Requires:          GeoIP
 Requires:          gd
 Requires:          openssl
@@ -206,6 +205,9 @@ fi
 
 
 %changelog
+* Wed Mar 04 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.13-2
+- remove incorrect BR
+
 * Tue Mar 03 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.13-1
 - update to upstream release 1.0.13
 - general spec file cleanup to match rawhide (for easier diff), including:
