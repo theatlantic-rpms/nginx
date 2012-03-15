@@ -8,8 +8,8 @@
 %global  nginx_webroot       %{nginx_datadir}/html
 
 Name:              nginx
-Version:           1.0.13
-Release:           2%{?dist}
+Version:           1.0.14
+Release:           1%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -205,6 +205,10 @@ fi
 
 
 %changelog
+* Thu Mar 15 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.14-1
+- update to upstream release 1.0.14
+- CVE-2012-1180 (#803856)
+
 * Wed Mar 04 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.13-2
 - remove incorrect BR
 
