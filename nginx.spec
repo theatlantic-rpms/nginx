@@ -8,7 +8,7 @@
 %global  nginx_webroot       %{nginx_datadir}/html
 
 Name:              nginx
-Version:           1.0.13
+Version:           1.0.14
 Release:           1%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
@@ -206,6 +206,10 @@ fi
 
 
 %changelog
+* Thu Mar 15 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.14-1
+- update to upstream release 1.0.14
+- CVE-2012-1180 (#803856)
+
 * Tue Mar 03 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.13-1
 - update to upstream release 1.0.13
 - general spec file cleanup to match rawhide (for easier diff), including:
