@@ -9,7 +9,7 @@
 
 Name:           nginx
 Version:        0.8.55
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
 
@@ -48,6 +48,7 @@ Source104:  404.html
 # removes -Werror in upstream build scripts.  -Werror conflicts with
 # -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
 Patch0:     nginx-auto-cc-gcc.patch
+Patch1:     nginx.CVE-2012-1180.patch
 
 %description
 Nginx [engine x] is an HTTP(S) server, HTTP(S) reverse proxy and IMAP/POP3
@@ -57,6 +58,7 @@ proxy server written by Igor Sysoev.
 %setup -q
 
 %patch0 -p0
+%patch1 -p0
 
 %build
 # nginx does not utilize a standard configure script.  It has its own
@@ -191,6 +193,9 @@ fi
 
 
 %changelog
+* Sat Mar 17 2012 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.55-2
+- patch for CVE-2012-1180
+
 * Mon Aug 29 2011 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.55-1
 - Update to legacy stable 0.8.55
 - fix bug #717078
