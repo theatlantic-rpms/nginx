@@ -1,3 +1,4 @@
+%global  _hardened_build     1
 %global  nginx_user          nginx
 %global  nginx_group         %{nginx_user}
 %global  nginx_home          %{_localstatedir}/lib/nginx
@@ -9,8 +10,8 @@
 
 Name:              nginx
 Epoch:             1
-Version:           1.0.14
-Release:           1%{?dist}
+Version:           1.0.15
+Release:           2%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -109,7 +110,7 @@ export DESTDIR=%{buildroot}
     --with-mail \
     --with-mail_ssl_module \
     --with-cc-opt="%{optflags} $(pcre-config --cflags)" \
-    --with-ld-opt="-Wl,-E" # so the perl module finds its symbols
+    --with-ld-opt="$RPM_LD_FLAGS -Wl,-E" # so the perl module finds its symbols
 
 make %{?_smp_mflags} 
 
@@ -212,6 +213,14 @@ fi
 
 
 %changelog
+* Thu Apr 19 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.15-2
+- renable auto-cc-gcc patch due to warnings on rawhide
+
+* Sat Apr 14 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.15-1
+- update to upstream release 1.0.15
+- no need to apply auto-cc-gcc patch
+- add %%global _hardened_build 1
+
 * Thu Mar 15 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.14-1
 - update to upstream release 1.0.14
 - amend some %%changelog formatting
