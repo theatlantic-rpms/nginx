@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           1%{?dist}
+Release:           2%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -206,6 +206,9 @@ fi
 
 
 %changelog
+* Mon May 14 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.15-2
+- fix postrotate script in nginx.logrotate (#705264)
+
 * Thu Apr 19 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.15-1
 - update to upstream release 1.0.15
 - CVE-2012-2089 (#812093)
