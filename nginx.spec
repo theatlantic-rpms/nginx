@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           2%{?dist}
+Release:           3%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -144,6 +144,8 @@ install -p -m 0644 %{SOURCE101} %{SOURCE102} \
 install -p -m 0644 %{SOURCE103} %{SOURCE104} \
     %{buildroot}%{nginx_webroot}
 
+install -p -D -m 0644 %{_builddir}/nginx-%{version}/man/nginx.8 \
+    %{buildroot}%{_mandir}/man8/nginx.8
 
 %pre
 if [ $1 -eq 1 ]; then
@@ -174,7 +176,8 @@ fi
 %doc LICENSE CHANGES README
 %{nginx_datadir}/
 %{_sbindir}/nginx
-%{_mandir}/man3/nginx.3pm.gz
+%{_mandir}/man3/nginx.3pm*
+%{_mandir}/man8/nginx.8*
 %{_initrddir}/nginx
 %dir %{nginx_confdir}
 %dir %{nginx_confdir}/conf.d
@@ -205,21 +208,26 @@ fi
 
 
 %changelog
-* Mon May 14 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.15-2
+* Sun Oct 28 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-3
+- add nginx man page (#870738)
+- link to official documentation not the community wiki (#870733)
+- default.conf: add "default_server" to the "listen" directive (#842738)
+
+* Mon May 14 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-2
 - fix postrotate script in nginx.logrotate (#705264)
 
-* Thu Apr 19 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.15-1
+* Thu Apr 19 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-1
 - update to upstream release 1.0.15
 - CVE-2012-2089 (#812093)
 
-* Thu Mar 15 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.14-1
+* Thu Mar 15 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.14-1
 - update to upstream release 1.0.14
 - CVE-2012-1180 (#803856)
 
-* Wed Mar 04 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.13-2
+* Wed Mar 04 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.13-2
 - remove incorrect BR
 
-* Tue Mar 03 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1.0.13-1
+* Tue Mar 03 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.13-1
 - update to upstream release 1.0.13
 - general spec file cleanup to match rawhide (for easier diff), including:
 - replace %%define with %%global
