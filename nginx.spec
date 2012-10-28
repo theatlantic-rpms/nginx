@@ -11,7 +11,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.0.15
-Release:           4%{?dist}
+Release:           5%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -28,7 +28,7 @@ Source4:           default.conf
 Source5:           ssl.conf
 Source6:           virtual.conf
 Source7:           nginx-upgrade
-Source8:           README.fedora
+Source8:           nginx-upgrade.8
 Source100:         index.html
 Source101:         poweredby.png
 Source102:         nginx-logo.png
@@ -68,7 +68,6 @@ memory usage.
 %prep
 %setup -q
 %patch0 -p0
-cp -a %{SOURCE8} .
 
 
 %build
@@ -147,7 +146,11 @@ install -p -m 0644 %{SOURCE101} %{SOURCE102} \
 install -p -m 0644 %{SOURCE103} %{SOURCE104} \
     %{buildroot}%{nginx_webroot}
 
+install -p -D -m 0644 %{_builddir}/nginx-%{version}/man/nginx.8 \
+    %{buildroot}%{_mandir}/man8/nginx.8
+
 install -p -D -m 0755 %{SOURCE7} %{buildroot}%{_bindir}/nginx-upgrade
+install -p -D -m 0644 %{SOURCE8} %{buildroot}%{_mandir}/man8/nginx-upgrade.8
 
 
 %pre
@@ -179,17 +182,16 @@ fi
 
 %postun
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -gt 1 ]; then
-    /bin/systemctl try-restart nginx.service >/dev/null 2>&1 || :
-fi
 
 
 %files
-%doc LICENSE CHANGES README README.fedora
+%doc LICENSE CHANGES README
 %{nginx_datadir}/
 %{_bindir}/nginx-upgrade
 %{_sbindir}/nginx
-%{_mandir}/man3/nginx.3pm.gz
+%{_mandir}/man3/nginx.3pm*
+%{_mandir}/man8/nginx.8*
+%{_mandir}/man8/nginx-upgrade.8*
 %{_unitdir}/nginx.service
 %dir %{nginx_confdir}
 %dir %{nginx_confdir}/conf.d
@@ -219,7 +221,15 @@ fi
 
 
 %changelog
-* Wed May 16 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.15-4
+* Sun Oct 28 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.15-5
+- add nginx man page (#850228)
+- add nginx-upgrade man page and remove README.fedora
+- link to official documentation instead of the community wiki (#870733)
+- do not run systemctl try-restart after package upgrade to allow the
+  administrator to run nginx-upgrade and avoid downtime
+- default.conf: add "default_server" to the "listen" directive (#842738)
+
+* Wed May 16 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.15-4
 - add nginx-upgrade to replace functionality from the nginx initscript
   that was lost after migration to systemd
 - add README.fedora to describe usage of nginx-upgrade
@@ -230,32 +240,32 @@ fi
   advice from nginx-devel
 - nginx.service: use private /tmp
 
-* Mon May 14 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.15-3
+* Mon May 14 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.15-3
 - fix incorrect postrotate script in nginx.logrotate
 
-* Thu Apr 19 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.15-2
+* Thu Apr 19 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.15-2
 - renable auto-cc-gcc patch due to warnings on rawhide
 
-* Sat Apr 14 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.15-1
+* Sat Apr 14 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.15-1
 - update to upstream release 1.0.15
 - no need to apply auto-cc-gcc patch
 - add %%global _hardened_build 1
 
-* Thu Mar 15 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.14-1
+* Thu Mar 15 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.14-1
 - update to upstream release 1.0.14
 - amend some %%changelog formatting
 
-* Tue Mar 06 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.13-1
+* Tue Mar 06 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.13-1
 - update to upstream release 1.0.13
 - amend --pid-path and --log-path
 
-* Sun Mar 04 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.12-5
+* Sun Mar 04 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.12-5
 - change pid path in nginx.conf to match systemd service file
 
-* Sun Mar 04 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.12-3
+* Sun Mar 04 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.12-3
 - fix %%pre scriptlet
 
-* Mon Feb 20 2012 Jamie Nguyen <jamie@tomoyolinux.co.uk> - 1:1.0.12-2
+* Mon Feb 20 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.12-2
 - update upstream URL
 - replace %%define with %%global
 - remove obsolete BuildRoot tag, %%clean section and %%defattr
