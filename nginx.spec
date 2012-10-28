@@ -11,7 +11,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.0.15
-Release:           5%{?dist}
+Release:           6%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -221,8 +221,11 @@ fi
 
 
 %changelog
+* Sun Oct 28 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.15-6
+- incorrect bug number in changelog
+
 * Sun Oct 28 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.0.15-5
-- add nginx man page (#850228)
+- add nginx man page (#870738)
 - add nginx-upgrade man page and remove README.fedora
 - link to official documentation instead of the community wiki (#870733)
 - do not run systemctl try-restart after package upgrade to allow the
