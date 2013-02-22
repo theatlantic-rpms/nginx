@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           3%{?dist}
+Release:           4%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -129,8 +129,9 @@ install -p -D -m 0644 %{SOURCE7} \
     %{buildroot}%{_sysconfdir}/sysconfig/nginx
 
 install -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.d
-install -p -d -m 0755 %{buildroot}%{nginx_home_tmp}
-install -p -d -m 0755 %{buildroot}%{nginx_logdir}
+install -p -d -m 0700 %{buildroot}%{nginx_home}
+install -p -d -m 0700 %{buildroot}%{nginx_home_tmp}
+install -p -d -m 0700 %{buildroot}%{nginx_logdir}
 install -p -d -m 0755 %{buildroot}%{nginx_webroot}
 
 install -p -m 0644 %{SOURCE3} \
@@ -157,18 +158,24 @@ if [ $1 -eq 1 ]; then
 fi
 
 %post
-if [ $1 == 1 ]; then
+if [ $1 -eq 1 ]; then
     /sbin/chkconfig --add %{name}
+fi
+if [ $1 -eq 2 ]; then
+    # Make sure these directories are not world readable.
+    chmod 700 %{nginx_home}
+    chmod 700 %{nginx_home_tmp}
+    chmod 700 %{nginx_logdir}
 fi
 
 %preun
-if [ $1 = 0 ]; then
+if [ $1 -eq 0 ]; then
     /sbin/service %{name} stop >/dev/null 2>&1
     /sbin/chkconfig --del %{name}
 fi
 
 %postun
-if [ $1 == 2 ]; then
+if [ $1 -eq 2 ]; then
     /sbin/service %{name} upgrade || :
 fi
 
@@ -181,7 +188,6 @@ fi
 %{_initrddir}/nginx
 %dir %{nginx_confdir}
 %dir %{nginx_confdir}/conf.d
-%dir %{nginx_logdir}
 %config(noreplace) %{nginx_confdir}/fastcgi.conf
 %config(noreplace) %{nginx_confdir}/fastcgi.conf.default
 %config(noreplace) %{nginx_confdir}/fastcgi_params
@@ -203,11 +209,15 @@ fi
 %dir %{perl_vendorarch}/auto/nginx
 %{perl_vendorarch}/nginx.pm
 %{perl_vendorarch}/auto/nginx/nginx.so
-%attr(-,%{nginx_user},%{nginx_group}) %dir %{nginx_home}
-%attr(-,%{nginx_user},%{nginx_group}) %dir %{nginx_home_tmp}
+%attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_home}
+%attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_home_tmp}
+%attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_logdir}
 
 
 %changelog
+* Fri Feb 22 2013 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-4
+- make sure nginx directories are not world readable (#913734, #913736)
+
 * Sun Oct 28 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-3
 - add nginx man page (#870738)
 - link to official documentation not the community wiki (#870733)
