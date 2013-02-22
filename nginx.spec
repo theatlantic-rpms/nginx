@@ -9,7 +9,7 @@
 
 Name:           nginx
 Version:        0.8.55
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
 
@@ -120,8 +120,9 @@ chmod 0755 %{buildroot}%{_sbindir}/nginx
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.d
 %{__install} -p -m 0644 %{SOURCE3} %{SOURCE4} %{buildroot}%{nginx_confdir}/conf.d
 %{__install} -p -m 0644 %{SOURCE6} %{buildroot}%{nginx_confdir}
-%{__install} -p -d -m 0755 %{buildroot}%{nginx_home_tmp}
-%{__install} -p -d -m 0755 %{buildroot}%{nginx_logdir}
+%{__install} -p -d -m 0700 %{buildroot}%{nginx_home}
+%{__install} -p -d -m 0700 %{buildroot}%{nginx_home_tmp}
+%{__install} -p -d -m 0700 %{buildroot}%{nginx_logdir}
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_webroot}
 %{__install} -p -m 0644 %{SOURCE100} %{SOURCE101} %{SOURCE102} %{SOURCE103} %{SOURCE104} %{buildroot}%{nginx_webroot}
 
@@ -145,6 +146,12 @@ fi
 if [ $1 == 1 ]; then
     /sbin/chkconfig --add %{name}
 fi
+if [ $1 == 2 ]; then
+    # Make sure these directories are not world readable.
+    chmod 700 %{nginx_home}
+    chmod 700 %{nginx_home_tmp}
+    chmod 700 %{nginx_logdir}
+fi
 
 %preun
 if [ $1 = 0 ]; then
@@ -166,7 +173,6 @@ fi
 %{_initrddir}/%{name}
 %dir %{nginx_confdir}
 %dir %{nginx_confdir}/conf.d
-%dir %{nginx_logdir}
 %config(noreplace) %{nginx_confdir}/conf.d/*.conf
 %config(noreplace) %{nginx_confdir}/win-utf
 %config(noreplace) %{nginx_confdir}/%{name}.conf.default
@@ -188,11 +194,15 @@ fi
 %dir %{perl_vendorarch}/auto/%{name}
 %{perl_vendorarch}/%{name}.pm
 %{perl_vendorarch}/auto/%{name}/%{name}.so
-%attr(-,%{nginx_user},%{nginx_group}) %dir %{nginx_home}
-%attr(-,%{nginx_user},%{nginx_group}) %dir %{nginx_home_tmp}
+%attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_home}
+%attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_home_tmp}
+%attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_logdir}
 
 
 %changelog
+* Fri Feb 22 2013 Jamie Nguyen <jamielinux@fedoraproject.org> - 0.8.55-3
+- make sure nginx directories are not world readable (#913734, #913736)
+
 * Sat Mar 17 2012 Jeremy Hinegardner <jeremy at hinegardner dot org> - 0.8.55-2
 - patch for CVE-2012-1180
 
