@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           4%{?dist}
+Release:           5%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -107,10 +107,11 @@ export DESTDIR=%{buildroot}
     --with-http_perl_module \
     --with-mail \
     --with-mail_ssl_module \
+    --with-debug \
     --with-cc-opt="%{optflags} $(pcre-config --cflags)" \
     --with-ld-opt="-Wl,-E" # so the perl module finds its symbols
 
-make %{?_smp_mflags} 
+make %{?_smp_mflags}
 
 
 %install
@@ -149,13 +150,11 @@ install -p -D -m 0644 %{_builddir}/nginx-%{version}/man/nginx.8 \
     %{buildroot}%{_mandir}/man8/nginx.8
 
 %pre
-if [ $1 -eq 1 ]; then
-    getent group %{nginx_group} > /dev/null || groupadd -r %{nginx_group}
-    getent passwd %{nginx_user} > /dev/null || \
-        useradd -r -d %{nginx_home} -g %{nginx_group} \
-        -s /sbin/nologin -c "Nginx web server" %{nginx_user}
-    exit 0
-fi
+getent group %{nginx_group} > /dev/null || groupadd -r %{nginx_group}
+getent passwd %{nginx_user} > /dev/null || \
+    useradd -r -d %{nginx_home} -g %{nginx_group} \
+    -s /sbin/nologin -c "Nginx web server" %{nginx_user}
+exit 0
 
 %post
 if [ $1 -eq 1 ]; then
@@ -215,6 +214,9 @@ fi
 
 
 %changelog
+* Fri Apr 26 2013 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-5
+- enable debugging (#956845)
+
 * Fri Feb 22 2013 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-4
 - make sure nginx directories are not world readable (#913734, #913736)
 
