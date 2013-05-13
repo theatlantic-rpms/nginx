@@ -16,8 +16,8 @@
 
 Name:              nginx
 Epoch:             1
-Version:           1.2.8
-Release:           3%{?dist}
+Version:           1.2.9
+Release:           1%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -222,6 +222,11 @@ fi
 
 
 %changelog
+* Mon May 13 2013 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.2.9-1
+- update to upstream release 1.2.9 which fixes CVE-2013-2070: "denial of
+  service or memory disclosure when using proxy_pass" (#962525, #962526),
+  which is related to CVE-2013-2028 affecting nginx 1.4.0
+
 * Sun Apr 28 2013 Dan Horák <dan[at]danny.cz> - 1:1.2.8-3
 - gperftools exist only on selected arches
 
