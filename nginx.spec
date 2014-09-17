@@ -27,7 +27,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.6.2
-Release:           1%{?dist}.1
+Release:           1%{?dist}.2
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -67,12 +67,14 @@ BuildRequires:     pcre-devel
 BuildRequires:     perl-devel
 BuildRequires:     perl(ExtUtils::Embed)
 BuildRequires:     zlib-devel
+
+Requires:          nginx-filesystem = %{epoch}:%{version}-%{release}
 Requires:          GeoIP
 Requires:          gd
 Requires:          openssl
 Requires:          pcre
 Requires:          perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-Requires(pre):     shadow-utils
+Requires(pre):     nginx-filesystem
 Provides:          webserver
 
 %if 0%{?with_systemd}
@@ -90,6 +92,18 @@ Requires(postun):  initscripts
 Nginx is a web server and a reverse proxy server for HTTP, SMTP, POP3 and
 IMAP protocols, with a strong focus on high concurrency, performance and low
 memory usage.
+
+
+%package filesystem
+Group:             System Environment/Daemons
+Summary:           The basic directory layout for the Nginx server
+BuildArch:         noarch
+Requires(pre):     shadow-utils
+
+%description filesystem
+The nginx-filesystem package contains the basic directory layout
+for the Apache HTTP server including the correct permissions
+for the directories.
 
 
 %prep
@@ -207,7 +221,7 @@ sed -e '/SERVER_NAME/s/server_name/host/' \
     -i %{buildroot}%{nginx_confdir}/fastcgi_params
 
 
-%pre
+%pre filesystem
 getent group %{nginx_group} > /dev/null || groupadd -r %{nginx_group}
 getent passwd %{nginx_user} > /dev/null || \
     useradd -r -d %{nginx_home} -g %{nginx_group} \
@@ -249,8 +263,10 @@ fi
 %endif
 
 %files
-%doc LICENSE CHANGES README
-%{nginx_datadir}/
+%{!?_licensedir:%global license %%doc}
+%license LICENSE
+%doc CHANGES README
+%{nginx_datadir}/html/*
 %{_bindir}/nginx-upgrade
 %{_sbindir}/nginx
 %{_mandir}/man3/nginx.3pm*
@@ -262,9 +278,6 @@ fi
 %{_initrddir}/nginx
 %config(noreplace) %{_sysconfdir}/sysconfig/nginx
 %endif
-%dir %{nginx_confdir}
-%dir %{nginx_confdir}/conf.d
-%dir %{nginx_confdir}/global.d
 %config(noreplace) %{nginx_confdir}/fastcgi.conf
 %config(noreplace) %{nginx_confdir}/fastcgi.conf.default
 %config(noreplace) %{nginx_confdir}/fastcgi_params
@@ -289,9 +302,19 @@ fi
 %attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_home_tmp}
 %attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_logdir}
 
+%files filesystem
+%dir %{nginx_datadir}
+%dir %{nginx_datadir}/html
+%dir %{nginx_confdir}
+%dir %{nginx_confdir}/conf.d
+%dir %{nginx_confdir}/global.d
 
 %changelog
-* Wed Sep 17 2014 Remi Collet <remr@fedoraproject.org> - 1:1.6.2-1.1
+* Wed Sep 17 2014 Remi Collet <remi@fedoraproject.org> - 1:1.6.2-1.2
+- create nginx-filesystem sub-package
+- fix license handling
+
+* Wed Sep 17 2014 Remi Collet <remi@fedoraproject.org> - 1:1.6.2-1.1
 - test build for #1142298
 - drop all servers from nginx.conf
 - define default server in conf.d/default.conf
