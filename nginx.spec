@@ -27,7 +27,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.6.2
-Release:           1%{?dist}
+Release:           1%{?dist}.1
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -45,6 +45,7 @@ Source13:          nginx-upgrade
 Source14:          nginx-upgrade.8
 Source15:          nginx.init
 Source16:          nginx.sysconfig
+Source17:          default.conf
 Source100:         index.html
 Source101:         poweredby.png
 Source102:         nginx-logo.png
@@ -178,6 +179,7 @@ install -p -D -m 0644 %{SOURCE11} \
     %{buildroot}%{_sysconfdir}/logrotate.d/nginx
 
 install -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.d
+install -p -d -m 0755 %{buildroot}%{nginx_confdir}/global.d
 install -p -d -m 0700 %{buildroot}%{nginx_home}
 install -p -d -m 0700 %{buildroot}%{nginx_home_tmp}
 install -p -d -m 0700 %{buildroot}%{nginx_logdir}
@@ -185,6 +187,8 @@ install -p -d -m 0755 %{buildroot}%{nginx_webroot}
 
 install -p -m 0644 %{SOURCE12} \
     %{buildroot}%{nginx_confdir}
+install -p -m 0644 %{SOURCE17} \
+    %{buildroot}%{nginx_confdir}/conf.d/
 install -p -m 0644 %{SOURCE100} \
     %{buildroot}%{nginx_webroot}
 install -p -m 0644 %{SOURCE101} %{SOURCE102} \
@@ -197,6 +201,10 @@ install -p -D -m 0644 %{_builddir}/nginx-%{version}/man/nginx.8 \
 
 install -p -D -m 0755 %{SOURCE13} %{buildroot}%{_bindir}/nginx-upgrade
 install -p -D -m 0644 %{SOURCE14} %{buildroot}%{_mandir}/man8/nginx-upgrade.8
+
+# I think this is better configuratio, more close to apache behavior
+sed -e '/SERVER_NAME/s/server_name/host/' \
+    -i %{buildroot}%{nginx_confdir}/fastcgi_params
 
 
 %pre
@@ -256,6 +264,7 @@ fi
 %endif
 %dir %{nginx_confdir}
 %dir %{nginx_confdir}/conf.d
+%dir %{nginx_confdir}/global.d
 %config(noreplace) %{nginx_confdir}/fastcgi.conf
 %config(noreplace) %{nginx_confdir}/fastcgi.conf.default
 %config(noreplace) %{nginx_confdir}/fastcgi_params
@@ -271,6 +280,7 @@ fi
 %config(noreplace) %{nginx_confdir}/uwsgi_params
 %config(noreplace) %{nginx_confdir}/uwsgi_params.default
 %config(noreplace) %{nginx_confdir}/win-utf
+%config(noreplace) %{nginx_confdir}/conf.d/default.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/nginx
 %dir %{perl_vendorarch}/auto/nginx
 %{perl_vendorarch}/nginx.pm
@@ -281,6 +291,13 @@ fi
 
 
 %changelog
+* Wed Sep 17 2014 Remi Collet <remr@fedoraproject.org> - 1:1.6.2-1.1
+- test build for #1142298
+- drop all servers from nginx.conf
+- define default server in conf.d/default.conf
+- add global.d directory
+- use fastcgi_param SERVER_NAME $host
+
 * Wed Sep 17 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.6.2-1
 - update to upstream release 1.6.2
 - CVE-2014-3616 nginx: virtual host confusion (#1142573)
