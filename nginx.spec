@@ -102,8 +102,8 @@ Requires(pre):     shadow-utils
 
 %description filesystem
 The nginx-filesystem package contains the basic directory layout
-for the Apache HTTP server including the correct permissions
-for the directories.
+for the Nginx server including the correct permissions for the
+directories.
 
 
 %prep
@@ -315,7 +315,7 @@ fi
 - fix license handling
 
 * Wed Sep 17 2014 Remi Collet <remi@fedoraproject.org> - 1:1.6.2-1.1
-- test build for #1142298
+- test build for https://bugzilla.redhat.com/1142298
 - drop all servers from nginx.conf
 - define default server in conf.d/default.conf
 - add global.d directory
