@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           5%{?dist}
+Release:           6%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -34,7 +34,10 @@ Source104:         50x.html
 
 # removes -Werror in upstream build scripts.  -Werror conflicts with
 # -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
-Patch0:     nginx-auto-cc-gcc.patch
+Patch0:            nginx-auto-cc-gcc.patch
+
+# Patch for CVE-2014-3616 virtual host confusion.
+Patch1:            nginx-1.0.15-fix-CVE-2014-3616.patch
 
 BuildRequires:     GeoIP-devel
 BuildRequires:     gd-devel
@@ -64,6 +67,7 @@ memory usage.
 %prep
 %setup -q
 %patch0 -p0
+%patch1 -p1
 
 
 %build
@@ -214,6 +218,9 @@ fi
 
 
 %changelog
+* Mon Sep 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-6
+- fix CVE-2014-3616 virtual host confusion (#1142573, #1142576)
+
 * Fri Apr 26 2013 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-5
 - enable debugging (#956845)
 - trim changelog
@@ -237,10 +244,10 @@ fi
 - update to upstream release 1.0.14
 - CVE-2012-1180 (#803856)
 
-* Wed Mar 04 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.13-2
+* Sun Mar 04 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.13-2
 - remove incorrect BR
 
-* Tue Mar 03 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.13-1
+* Sat Mar 03 2012 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.13-1
 - update to upstream release 1.0.13
 - general spec file cleanup to match rawhide (for easier diff), including:
 - replace %%define with %%global
@@ -252,7 +259,7 @@ fi
 * Sun Feb 19 2012 Jeremy Hinegardner <jeremy at hinegardner dot org> - 1.0.12-1
 - Update to 1.0.12
 
-* Thu Dec 14 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.10-2
+* Wed Dec 14 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.10-2
 - Fix Build Issue
 
 * Thu Nov 17 2011 Keiran "Affix" Smith <fedora@affix.me> - 1.0.10-1
