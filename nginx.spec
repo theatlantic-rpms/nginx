@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           6%{?dist}
+Release:           7%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -47,12 +47,14 @@ BuildRequires:     pcre-devel
 BuildRequires:     perl-devel
 BuildRequires:     perl(ExtUtils::Embed)
 BuildRequires:     zlib-devel
+
+Requires:          nginx-filesystem = %{epoch}:%{version}-%{release}
 Requires:          GeoIP
 Requires:          gd
 Requires:          openssl
 Requires:          pcre
 Requires:          perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-Requires(pre):     shadow-utils
+Requires(pre):     nginx-filesystem
 Requires(post):    chkconfig
 Requires(preun):   chkconfig, initscripts
 Requires(postun):  initscripts
@@ -62,6 +64,17 @@ Provides:          webserver
 Nginx is a web server and a reverse proxy server for HTTP, SMTP, POP3 and
 IMAP protocols, with a strong focus on high concurrency, performance and low
 memory usage.
+
+%package filesystem
+Group:             System Environment/Daemons
+Summary:           The basic directory layout for the Nginx server
+BuildArch:         noarch
+Requires(pre):     shadow-utils
+
+%description filesystem
+The nginx-filesystem package contains the basic directory layout
+for the Nginx server including the correct permissions for the
+directories.
 
 
 %prep
@@ -184,7 +197,7 @@ fi
 
 %files
 %doc LICENSE CHANGES README
-%{nginx_datadir}/
+%{nginx_datadir}/html/*
 %{_sbindir}/nginx
 %{_mandir}/man3/nginx.3pm*
 %{_mandir}/man8/nginx.8*
@@ -216,8 +229,16 @@ fi
 %attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_home_tmp}
 %attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_logdir}
 
+%files filesystem
+%dir %{nginx_datadir}
+%dir %{nginx_datadir}/html
+%dir %{nginx_confdir}
+%dir %{nginx_confdir}/conf.d
 
 %changelog
+* Mon Sep 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-7
+- create nginx-filesystem subpackage (patch from Remi Collet)
+
 * Mon Sep 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-6
 - fix CVE-2014-3616 virtual host confusion (#1142573, #1142576)
 
