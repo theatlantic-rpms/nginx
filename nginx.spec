@@ -48,7 +48,7 @@ BuildRequires:     perl-devel
 BuildRequires:     perl(ExtUtils::Embed)
 BuildRequires:     zlib-devel
 
-Requires:          nginx-filesystem = %{epoch}:%{version}-%{release}
+Requires:          nginx-filesystem = %{version}-%{release}
 Requires:          GeoIP
 Requires:          gd
 Requires:          openssl
