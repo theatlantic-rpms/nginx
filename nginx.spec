@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           7%{?dist}
+Release:           8%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -236,6 +236,9 @@ fi
 %dir %{nginx_confdir}/conf.d
 
 %changelog
+* Wed Oct 08 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-8
+- fix typo in Requires
+
 * Mon Sep 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-7
 - create nginx-filesystem subpackage (patch from Remi Collet)
 
