@@ -9,7 +9,7 @@
 
 Name:           nginx
 Version:        0.8.55
-Release:        3%{?dist}
+Release:        5%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
 
@@ -44,6 +44,9 @@ Source101:  poweredby.png
 Source102:  nginx-logo.png
 Source103:  50x.html
 Source104:  404.html
+Source200:  vim-ftdetect.vim
+Source201:  vim-indent.vim
+Source202:  vim-syntax.vim
 
 # removes -Werror in upstream build scripts.  -Werror conflicts with
 # -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
@@ -134,6 +137,14 @@ do
     rm -f $textfile.old
 done
 
+install -p -D -m644 %{SOURCE200} \
+    %{buildroot}%{_datadir}/vim/vimfiles/ftdetect/nginx.vim
+install -p -D -m644 %{SOURCE201} \
+    %{buildroot}%{_datadir}/vim/vimfiles/indent/nginx.vim
+install -p -D -m644 %{SOURCE202} \
+    %{buildroot}%{_datadir}/vim/vimfiles/syntax/nginx.vim
+
+
 %clean
 rm -rf %{buildroot}
 
@@ -169,6 +180,9 @@ fi
 %doc LICENSE CHANGES README
 %{nginx_datadir}/
 %{_sbindir}/%{name}
+%{_datadir}/vim/vimfiles/ftdetect/nginx.vim
+%{_datadir}/vim/vimfiles/syntax/nginx.vim
+%{_datadir}/vim/vimfiles/indent/nginx.vim
 %{_mandir}/man3/%{name}.3pm.gz
 %{_initrddir}/%{name}
 %dir %{nginx_confdir}
@@ -200,6 +214,9 @@ fi
 
 
 %changelog
+* Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 0.8.55-4
+- add vim files (#1142849)
+
 * Fri Feb 22 2013 Jamie Nguyen <jamielinux@fedoraproject.org> - 0.8.55-3
 - make sure nginx directories are not world readable (#913734, #913736)
 
