@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           8%{?dist}
+Release:           9%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -147,6 +147,7 @@ install -p -D -m 0644 %{SOURCE7} \
     %{buildroot}%{_sysconfdir}/sysconfig/nginx
 
 install -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.d
+install -p -d -m 0755 %{buildroot}%{nginx_confdir}/default.d
 install -p -d -m 0700 %{buildroot}%{nginx_home}
 install -p -d -m 0700 %{buildroot}%{nginx_home_tmp}
 install -p -d -m 0700 %{buildroot}%{nginx_logdir}
@@ -234,8 +235,12 @@ fi
 %dir %{nginx_datadir}/html
 %dir %{nginx_confdir}
 %dir %{nginx_confdir}/conf.d
+%dir %{nginx_confdir}/default.d
 
 %changelog
+* Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-9
+- use default.d directory
+
 * Wed Oct 08 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-8
 - fix typo in Requires
 
