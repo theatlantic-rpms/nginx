@@ -16,7 +16,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.4.7
-Release:           4%{?dist}
+Release:           5%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -185,6 +185,7 @@ install -p -D -m 0644 %{SOURCE11} \
     %{buildroot}%{_sysconfdir}/logrotate.d/nginx
 
 install -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.d
+install -p -d -m 0755 %{buildroot}%{nginx_confdir}/default.d
 install -p -d -m 0700 %{buildroot}%{nginx_home}
 install -p -d -m 0700 %{buildroot}%{nginx_home_tmp}
 install -p -d -m 0700 %{buildroot}%{nginx_logdir}
@@ -271,8 +272,6 @@ fi
 %{_initrddir}/nginx
 %config(noreplace) %{_sysconfdir}/sysconfig/nginx
 %endif
-%dir %{nginx_confdir}
-%dir %{nginx_confdir}/conf.d
 %config(noreplace) %{nginx_confdir}/fastcgi.conf
 %config(noreplace) %{nginx_confdir}/fastcgi.conf.default
 %config(noreplace) %{nginx_confdir}/fastcgi_params
@@ -301,8 +300,12 @@ fi
 %dir %{nginx_datadir}/html
 %dir %{nginx_confdir}
 %dir %{nginx_confdir}/conf.d
+%dir %{nginx_confdir}/default.d
 
 %changelog
+* Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.4.7-5
+- use default.d directory
+
 * Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.4.7-4
 - add vim files (#1142849)
 
