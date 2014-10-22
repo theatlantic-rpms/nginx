@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           9%{?dist}
+Release:           10%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -31,6 +31,9 @@ Source101:         poweredby.png
 Source102:         nginx-logo.png
 Source103:         404.html
 Source104:         50x.html
+Source200:         vim-ftdetect.vim
+Source201:         vim-indent.vim
+Source202:         vim-syntax.vim
 
 # removes -Werror in upstream build scripts.  -Werror conflicts with
 # -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
@@ -167,6 +170,14 @@ install -p -m 0644 %{SOURCE103} %{SOURCE104} \
 install -p -D -m 0644 %{_builddir}/nginx-%{version}/man/nginx.8 \
     %{buildroot}%{_mandir}/man8/nginx.8
 
+install -p -D -m644 %{SOURCE200} \
+    %{buildroot}%{_datadir}/vim/vimfiles/ftdetect/nginx.vim
+install -p -D -m644 %{SOURCE201} \
+    %{buildroot}%{_datadir}/vim/vimfiles/indent/nginx.vim
+install -p -D -m644 %{SOURCE202} \
+    %{buildroot}%{_datadir}/vim/vimfiles/syntax/nginx.vim
+
+
 %pre
 getent group %{nginx_group} > /dev/null || groupadd -r %{nginx_group}
 getent passwd %{nginx_user} > /dev/null || \
@@ -200,6 +211,9 @@ fi
 %doc LICENSE CHANGES README
 %{nginx_datadir}/html/*
 %{_sbindir}/nginx
+%{_datadir}/vim/vimfiles/ftdetect/nginx.vim
+%{_datadir}/vim/vimfiles/syntax/nginx.vim
+%{_datadir}/vim/vimfiles/indent/nginx.vim
 %{_mandir}/man3/nginx.3pm*
 %{_mandir}/man8/nginx.8*
 %{_initrddir}/nginx
@@ -238,6 +252,9 @@ fi
 %dir %{nginx_confdir}/default.d
 
 %changelog
+* Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-10
+- add vim files (#1142849)
+
 * Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-9
 - use default.d directory
 
