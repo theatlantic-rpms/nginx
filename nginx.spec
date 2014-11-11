@@ -9,7 +9,7 @@
 
 Name:           nginx
 Version:        0.8.55
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Robust, small and high performance HTTP and reverse proxy server
 Group:          System Environment/Daemons   
 
@@ -216,11 +216,11 @@ fi
 
 
 %changelog
-* Tue Nov 11 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 0.8.55-5
+* Tue Nov 11 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 0.8.55-6
 - fix CVE-2013-4547 security bypass due to whitespace parsing
   (#1032266, #1032269)
 
-* Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 0.8.55-4
+* Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 0.8.55-5
 - add vim files (#1142849)
 
 * Fri Feb 22 2013 Jamie Nguyen <jamielinux@fedoraproject.org> - 0.8.55-3
