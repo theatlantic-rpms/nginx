@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           10%{?dist}
+Release:           11%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -41,6 +41,9 @@ Patch0:            nginx-auto-cc-gcc.patch
 
 # Patch for CVE-2014-3616 virtual host confusion.
 Patch1:            nginx-1.0.15-fix-CVE-2014-3616.patch
+
+# Patch for CVE-2013-4547 security bypass due to whitespace parsing.
+Patch2:            nginx-1.0.15-fix-CVE-2013-4547.patch
 
 BuildRequires:     GeoIP-devel
 BuildRequires:     gd-devel
@@ -84,6 +87,7 @@ directories.
 %setup -q
 %patch0 -p0
 %patch1 -p1
+%patch2 -p0
 
 
 %build
@@ -252,6 +256,10 @@ fi
 %dir %{nginx_confdir}/default.d
 
 %changelog
+* Tue Nov 11 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-11
+- fix CVE-2013-4547 security bypass due to whitespace parsing
+  (#1032266, #1032270)
+
 * Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-10
 - add vim files (#1142849)
 
