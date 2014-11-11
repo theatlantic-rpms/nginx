@@ -52,6 +52,7 @@ Source202:  vim-syntax.vim
 # -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
 Patch0:     nginx-auto-cc-gcc.patch
 Patch1:     nginx.CVE-2012-1180.patch
+Patch2:     nginx-0.8.55-fix-CVE-2013-4547.patch
 
 %description
 Nginx [engine x] is an HTTP(S) server, HTTP(S) reverse proxy and IMAP/POP3
@@ -62,6 +63,7 @@ proxy server written by Igor Sysoev.
 
 %patch0 -p0
 %patch1 -p0
+%patch2 -p0
 
 %build
 # nginx does not utilize a standard configure script.  It has its own
@@ -214,6 +216,10 @@ fi
 
 
 %changelog
+* Tue Nov 11 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 0.8.55-5
+- fix CVE-2013-4547 security bypass due to whitespace parsing
+  (#1032266, #1032269)
+
 * Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 0.8.55-4
 - add vim files (#1142849)
 
