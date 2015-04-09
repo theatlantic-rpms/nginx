@@ -26,8 +26,8 @@
 
 Name:              nginx
 Epoch:             1
-Version:           1.6.2
-Release:           4%{?dist}
+Version:           1.6.3
+Release:           1%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -308,6 +308,9 @@ fi
 
 
 %changelog
+* Thu Apr 09 2015 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.6.3-1
+- update to upstream release 1.6.3
+
 * Wed Oct 22 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.6.2-4
 - fix package ownership of directories
 
