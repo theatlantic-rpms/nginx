@@ -9,7 +9,7 @@
 
 Name:              nginx
 Version:           1.0.15
-Release:           11%{?dist}
+Release:           12%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -256,6 +256,10 @@ fi
 %dir %{nginx_confdir}/default.d
 
 %changelog
+* Tue Jun 16 2015 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-12
+- fix path to png images in error pages (#1232277)
+- optimize png images with optipng
+
 * Tue Nov 11 2014 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-11
 - fix CVE-2013-4547 security bypass due to whitespace parsing
   (#1032266, #1032270)
