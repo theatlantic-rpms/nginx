@@ -18,10 +18,16 @@
 %global  with_aio   1
 %endif
 
+%if 0%{?fedora} > 22
+%bcond_without mailcap_mimetypes
+%else
+%bcond_with    mailcap_mimetypes
+%endif
+
 Name:              nginx
 Epoch:             1
 Version:           1.8.0
-Release:           12%{?dist}
+Release:           13%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -66,6 +72,9 @@ Requires:          openssl
 Requires:          pcre
 Requires:          perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires(pre):     nginx-filesystem
+%if %{with mailcap_mimetypes}
+Requires:          nginx-mimetypes
+%endif
 Provides:          webserver
 
 BuildRequires:     systemd
@@ -181,6 +190,10 @@ install -p -m 0644 %{SOURCE101} %{SOURCE102} \
 install -p -m 0644 %{SOURCE103} %{SOURCE104} \
     %{buildroot}%{nginx_webroot}
 
+%if %{with mailcap_mimetypes}
+rm %{buildroot}%{_sysconfdir}/nginx/mime.types
+%endif
+
 install -p -D -m 0644 %{_builddir}/nginx-%{version}/man/nginx.8 \
     %{buildroot}%{_mandir}/man8/nginx.8
 
@@ -213,7 +226,8 @@ if [ $1 -ge 1 ]; then
 fi
 
 %files
-%doc LICENSE CHANGES README
+%license LICENSE
+%doc CHANGES README
 %{nginx_datadir}/html/*
 %{_bindir}/nginx-upgrade
 %{_sbindir}/nginx
@@ -230,7 +244,9 @@ fi
 %config(noreplace) %{nginx_confdir}/fastcgi_params.default
 %config(noreplace) %{nginx_confdir}/koi-utf
 %config(noreplace) %{nginx_confdir}/koi-win
+%if ! %{with mailcap_mimetypes}
 %config(noreplace) %{nginx_confdir}/mime.types
+%endif
 %config(noreplace) %{nginx_confdir}/mime.types.default
 %config(noreplace) %{nginx_confdir}/nginx.conf
 %config(noreplace) %{nginx_confdir}/nginx.conf.default
@@ -256,6 +272,10 @@ fi
 
 
 %changelog
+* Fri Sep 25 2015 Ville Skyttä <ville.skytta@iki.fi> - 1:1.8.0-13
+- Use nginx-mimetypes from mailcap (#1248736)
+- Mark LICENSE as %%license
+
 * Thu Sep 10 2015 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.8.0-12
 - also build with gperftools on aarch64 (#1258412)
 
