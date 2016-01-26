@@ -20,8 +20,8 @@
 
 Name:              nginx
 Epoch:             1
-Version:           1.8.0
-Release:           11%{?dist}
+Version:           1.8.1
+Release:           1%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -256,6 +256,12 @@ fi
 
 
 %changelog
+* Tue Jan 26 2016 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.8.1-1
+- update to upstream release 1.8.1
+- CVE-2016-0747: Insufficient limits of CNAME resolution in resolver
+- CVE-2016-0746: Use-after-free during CNAME response processing in resolver
+- CVE-2016-0742: Invalid pointer dereference in resolver
+
 * Sun Oct 04 2015 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.8.0-11
 - remove PID file before starting nginx (#1268621)
 
