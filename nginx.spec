@@ -18,7 +18,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.10.0
-Release:           2%{?dist}
+Release:           1%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -54,10 +54,8 @@ BuildRequires:     zlib-devel
 
 Requires:          nginx-filesystem = %{epoch}:%{version}-%{release}
 
-%if 0%{?rhel} || 0%{?fedora} < 24
 # Introduced at 1:1.10.0-1 to ease upgrade path. To be removed later.
 Requires:          nginx-all-modules = %{epoch}:%{version}-%{release}
-%endif
 
 Requires:          openssl
 Requires:          pcre
@@ -91,14 +89,6 @@ Requires:          nginx-mod-stream = %{epoch}:%{version}-%{release}
 
 %description all-modules
 %{summary}.
-%if 0%{?rhel}
-The main nginx package depends on this to ease the upgrade path. After a grace
-period of several months, modules will become optional.
-%endif
-%if 0%{?fedora} && 0%{?fedora} < 24
-The main nginx package depends on this to ease the upgrade path. Starting from
-Fedora 24, modules are optional.
-%endif
 
 %package filesystem
 Group:             System Environment/Daemons
@@ -172,10 +162,6 @@ Requires:          nginx
 %setup -q
 %patch0 -p0
 cp %{SOURCE200} .
-
-%if 0%{?rhel} < 8
-sed -i -e 's#KillMode=.*#KillMode=process#g' %{SOURCE10}
-%endif
 
 
 %build
@@ -423,9 +409,6 @@ fi
 
 
 %changelog
-* Wed Apr 27 2016 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.10.0-2
-- only Require nginx-all-modules for EPEL and current Fedora releases
-
 * Wed Apr 27 2016 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.10.0-1
 - update to upstream release 1.10.0
 - split dynamic modules into subpackages
