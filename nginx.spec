@@ -25,7 +25,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.8.1
-Release:           1%{?dist}
+Release:           2%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -50,6 +50,8 @@ Source104:         50x.html
 # removes -Werror in upstream build scripts.  -Werror conflicts with
 # -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
 Patch0:            nginx-auto-cc-gcc.patch
+# CVE-2016-4450
+Patch1:            nginx-1.8.1-null-pointer-deref.patch
 
 BuildRequires:     GeoIP-devel
 BuildRequires:     gd-devel
@@ -100,6 +102,7 @@ directories.
 %prep
 %setup -q
 %patch0 -p0
+%patch1 -p0
 
 
 %build
