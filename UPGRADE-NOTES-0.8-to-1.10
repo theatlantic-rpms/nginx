@@ -11,7 +11,7 @@ your configuration.
 
 Please see upstream release notes for a complete list of new features,
 bug fixes, and changes: http://nginx.org/en/CHANGES-1.10
-One notable feature is support for HTTP/2.
+(Please note, the version of OpenSSL on RHEL 5 doesn't support HTTP/2.)
 
 Nginx gained support for dynamic modules. As part of this update, dynamic
 modules have been split into subpackages. For the time being these are hard
