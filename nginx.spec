@@ -61,7 +61,9 @@ memory usage.
 %package all-modules
 Group:             System Environment/Daemons
 Summary:           A meta package that installs all available Nginx modules
+%if 0%{?rhel} > 5
 BuildArch:         noarch
+%endif
 
 Requires:          nginx-mod-http-geoip = %{version}-%{release}
 Requires:          nginx-mod-http-image-filter = %{version}-%{release}
@@ -78,7 +80,9 @@ period of several months, modules will become optional.
 %package filesystem
 Group:             System Environment/Daemons
 Summary:           The basic directory layout for the Nginx server
+%if 0%{?rhel} > 5
 BuildArch:         noarch
+%endif
 Requires(pre):     shadow-utils
 
 %description filesystem
