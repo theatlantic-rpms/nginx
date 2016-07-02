@@ -156,6 +156,10 @@ cp %{SOURCE200} .
 cp %{SOURCE210} .
 cp %{SOURCE211} .
 
+%if 0%{?rhel} < 6
+# OpenSSL on RHEL 5 is too old for HTTP/2 support.
+sed -i -e 's/http2 //g' %{SOURCE14}
+%endif
 
 %build
 # nginx does not utilize a standard configure script.  It has its own
