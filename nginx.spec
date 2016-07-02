@@ -11,6 +11,9 @@ Group:             System Environment/Daemons
 # http://www.freebsd.org/copyright/freebsd-license.html
 License:           BSD
 URL:               http://nginx.org/
+%if 0%{?rhel} == 5
+BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+%endif
 
 Source0:           http://nginx.org/download/nginx-%{version}.tar.gz
 Source1:           http://nginx.org/download/nginx-%{version}.tar.gz.asc
@@ -330,6 +333,7 @@ fi
 %attr(700,%{nginx_user},%{nginx_user}) %dir %{_localstatedir}/lib/nginx/tmp
 %attr(700,%{nginx_user},%{nginx_user}) %dir %{_localstatedir}/log/nginx
 %dir %{_libdir}/nginx/modules
+
 %files all-modules
 
 %files filesystem
