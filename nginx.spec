@@ -1,15 +1,9 @@
+%global  _hardened_build     1
 %global  nginx_user          nginx
-%global  nginx_group         %{nginx_user}
-%global  nginx_home          %{_localstatedir}/lib/nginx
-%global  nginx_home_tmp      %{nginx_home}/tmp
-%global  nginx_logdir        %{_localstatedir}/log/nginx
-%global  nginx_confdir       %{_sysconfdir}/nginx
-%global  nginx_datadir       %{_datadir}/nginx
-%global  nginx_webroot       %{nginx_datadir}/html
 
 Name:              nginx
-Version:           1.0.15
-Release:           12%{?dist}
+Version:           1.10.1
+Release:           1%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -19,47 +13,36 @@ License:           BSD
 URL:               http://nginx.org/
 
 Source0:           http://nginx.org/download/nginx-%{version}.tar.gz
-Source1:           nginx.init
-Source2:           nginx.logrotate
-Source3:           nginx.conf
-Source4:           default.conf
-Source5:           ssl.conf
-Source6:           virtual.conf
-Source7:           nginx.sysconfig
+Source1:           http://nginx.org/download/nginx-%{version}.tar.gz.asc
+Source10:          nginx.init
+Source11:          nginx.logrotate
+Source12:          nginx.conf
+Source13:          default.conf
+Source14:          ssl.conf
+Source15:          virtual.conf
+Source16:          nginx.sysconfig
 Source100:         index.html
 Source101:         poweredby.png
 Source102:         nginx-logo.png
 Source103:         404.html
 Source104:         50x.html
-Source200:         vim-ftdetect.vim
-Source201:         vim-indent.vim
-Source202:         vim-syntax.vim
+Source200:         README.epel
+Source210:         UPGRADE-NOTES-1.0-to-1.10
 
 # removes -Werror in upstream build scripts.  -Werror conflicts with
 # -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
 Patch0:            nginx-auto-cc-gcc.patch
 
-# Patch for CVE-2014-3616 virtual host confusion.
-Patch1:            nginx-1.0.15-fix-CVE-2014-3616.patch
-
-# Patch for CVE-2013-4547 security bypass due to whitespace parsing.
-Patch2:            nginx-1.0.15-fix-CVE-2013-4547.patch
-
-BuildRequires:     GeoIP-devel
-BuildRequires:     gd-devel
-BuildRequires:     libxslt-devel
 BuildRequires:     openssl-devel
 BuildRequires:     pcre-devel
-BuildRequires:     perl-devel
-BuildRequires:     perl(ExtUtils::Embed)
 BuildRequires:     zlib-devel
 
 Requires:          nginx-filesystem = %{version}-%{release}
-Requires:          GeoIP
-Requires:          gd
+# Introduced at 1.10.1-1 to ease upgrade path. To be removed later.
+Requires:          nginx-all-modules = %{version}-%{release}
+
 Requires:          openssl
 Requires:          pcre
-Requires:          perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires(pre):     nginx-filesystem
 Requires(post):    chkconfig
 Requires(preun):   chkconfig, initscripts
@@ -70,6 +53,23 @@ Provides:          webserver
 Nginx is a web server and a reverse proxy server for HTTP, SMTP, POP3 and
 IMAP protocols, with a strong focus on high concurrency, performance and low
 memory usage.
+
+%package all-modules
+Group:             System Environment/Daemons
+Summary:           A meta package that installs all available Nginx modules
+BuildArch:         noarch
+
+Requires:          nginx-mod-http-geoip = %{version}-%{release}
+Requires:          nginx-mod-http-image-filter = %{version}-%{release}
+Requires:          nginx-mod-http-perl = %{version}-%{release}
+Requires:          nginx-mod-http-xslt-filter = %{version}-%{release}
+Requires:          nginx-mod-mail = %{version}-%{release}
+Requires:          nginx-mod-stream = %{version}-%{release}
+
+%description all-modules
+%{summary}.
+The main nginx package depends on this to ease the upgrade path. After a grace
+period of several months, modules will become optional.
 
 %package filesystem
 Group:             System Environment/Daemons
@@ -82,12 +82,68 @@ The nginx-filesystem package contains the basic directory layout
 for the Nginx server including the correct permissions for the
 directories.
 
+%package mod-http-geoip
+Group:             System Environment/Daemons
+Summary:           Nginx HTTP geoip module
+BuildRequires:     GeoIP-devel
+Requires:          nginx
+Requires:          GeoIP
+
+%description mod-http-geoip
+%{summary}.
+
+%package mod-http-image-filter
+Group:             System Environment/Daemons
+Summary:           Nginx HTTP image filter module
+BuildRequires:     gd-devel
+Requires:          nginx
+Requires:          gd
+
+%description mod-http-image-filter
+%{summary}.
+
+%package mod-http-perl
+Group:             System Environment/Daemons
+Summary:           Nginx HTTP perl module
+BuildRequires:     perl-devel
+BuildRequires:     perl(ExtUtils::Embed)
+Requires:          nginx
+Requires:          perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+
+%description mod-http-perl
+%{summary}.
+
+%package mod-http-xslt-filter
+Group:             System Environment/Daemons
+Summary:           Nginx XSLT module
+BuildRequires:     libxslt-devel
+Requires:          nginx
+
+%description mod-http-xslt-filter
+%{summary}.
+
+%package mod-mail
+Group:             System Environment/Daemons
+Summary:           Nginx mail modules
+Requires:          nginx
+
+%description mod-mail
+%{summary}.
+
+%package mod-stream
+Group:             System Environment/Daemons
+Summary:           Nginx stream modules
+Requires:          nginx
+
+%description mod-stream
+%{summary}.
+
 
 %prep
 %setup -q
 %patch0 -p0
-%patch1 -p1
-%patch2 -p0
+cp %{SOURCE200} .
+cp %{SOURCE210} .
 
 
 %build
@@ -97,43 +153,51 @@ directories.
 # variable.
 export DESTDIR=%{buildroot}
 ./configure \
-    --prefix=%{nginx_datadir} \
+    --prefix=%{_datadir}/nginx \
     --sbin-path=%{_sbindir}/nginx \
-    --conf-path=%{nginx_confdir}/nginx.conf \
-    --error-log-path=%{nginx_logdir}/error.log \
-    --http-log-path=%{nginx_logdir}/access.log \
-    --http-client-body-temp-path=%{nginx_home_tmp}/client_body \
-    --http-proxy-temp-path=%{nginx_home_tmp}/proxy \
-    --http-fastcgi-temp-path=%{nginx_home_tmp}/fastcgi \
-    --http-uwsgi-temp-path=%{nginx_home_tmp}/uwsgi \
-    --http-scgi-temp-path=%{nginx_home_tmp}/scgi \
+    --modules-path=%{_libdir}/nginx/modules \
+    --conf-path=%{_sysconfdir}/nginx/nginx.conf \
+    --error-log-path=%{_localstatedir}/log/nginx/error.log \
+    --http-log-path=%{_localstatedir}/log/nginx/access.log \
+    --http-client-body-temp-path=%{_localstatedir}/lib/nginx/tmp/client_body \
+    --http-proxy-temp-path=%{_localstatedir}/lib/nginx/tmp/proxy \
+    --http-fastcgi-temp-path=%{_localstatedir}/lib/nginx/tmp/fastcgi \
+    --http-uwsgi-temp-path=%{_localstatedir}/lib/nginx/tmp/uwsgi \
+    --http-scgi-temp-path=%{_localstatedir}/lib/nginx/tmp/scgi \
     --pid-path=%{_localstatedir}/run/nginx.pid \
     --lock-path=%{_localstatedir}/lock/subsys/nginx \
     --user=%{nginx_user} \
-    --group=%{nginx_group} \
+    --group=%{nginx_user} \
     --with-file-aio \
     --with-ipv6 \
     --with-http_ssl_module \
+    --with-http_v2_module \
     --with-http_realip_module \
     --with-http_addition_module \
-    --with-http_xslt_module \
-    --with-http_image_filter_module \
-    --with-http_geoip_module \
+    --with-http_xslt_module=dynamic \
+    --with-http_image_filter_module=dynamic \
+    --with-http_geoip_module=dynamic \
     --with-http_sub_module \
     --with-http_dav_module \
     --with-http_flv_module \
     --with-http_mp4_module \
+    --with-http_gunzip_module \
     --with-http_gzip_static_module \
     --with-http_random_index_module \
     --with-http_secure_link_module \
     --with-http_degradation_module \
+    --with-http_slice_module \
     --with-http_stub_status_module \
-    --with-http_perl_module \
-    --with-mail \
+    --with-http_perl_module=dynamic \
+    --with-mail=dynamic \
     --with-mail_ssl_module \
+    --with-pcre \
+    --with-pcre-jit \
+    --with-stream=dynamic \
+    --with-stream_ssl_module \
     --with-debug \
     --with-cc-opt="%{optflags} $(pcre-config --cflags)" \
-    --with-ld-opt="-Wl,-E" # so the perl module finds its symbols
+    --with-ld-opt="$RPM_LD_FLAGS -Wl,-E" # so the perl module finds its symbols
 
 make %{?_smp_mflags}
 
@@ -146,46 +210,60 @@ find %{buildroot} -type f -name perllocal.pod -exec rm -f '{}' \;
 find %{buildroot} -type f -empty -exec rm -f '{}' \;
 find %{buildroot} -type f -iname '*.so' -exec chmod 0755 '{}' \;
 
-install -p -D -m 0755 %{SOURCE1} \
+install -p -D -m 0755 %{SOURCE10} \
     %{buildroot}%{_initrddir}/nginx
-install -p -D -m 0644 %{SOURCE2} \
+install -p -D -m 0644 %{SOURCE11} \
     %{buildroot}%{_sysconfdir}/logrotate.d/nginx
-install -p -D -m 0644 %{SOURCE7} \
+install -p -D -m 0644 %{SOURCE16} \
     %{buildroot}%{_sysconfdir}/sysconfig/nginx
 
-install -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.d
-install -p -d -m 0755 %{buildroot}%{nginx_confdir}/default.d
-install -p -d -m 0700 %{buildroot}%{nginx_home}
-install -p -d -m 0700 %{buildroot}%{nginx_home_tmp}
-install -p -d -m 0700 %{buildroot}%{nginx_logdir}
-install -p -d -m 0755 %{buildroot}%{nginx_webroot}
+install -p -d -m 0755 %{buildroot}%{_sysconfdir}/nginx/conf.d
+install -p -d -m 0755 %{buildroot}%{_sysconfdir}/nginx/default.d
 
-install -p -m 0644 %{SOURCE3} \
-    %{buildroot}%{nginx_confdir}
-install -p -m 0644 %{SOURCE4} %{SOURCE5} %{SOURCE6} \
-    %{buildroot}%{nginx_confdir}/conf.d
+install -p -d -m 0700 %{buildroot}%{_localstatedir}/lib/nginx
+install -p -d -m 0700 %{buildroot}%{_localstatedir}/lib/nginx/tmp
+install -p -d -m 0700 %{buildroot}%{_localstatedir}/log/nginx
+
+install -p -d -m 0755 %{buildroot}%{_datadir}/nginx/html
+install -p -d -m 0755 %{buildroot}%{_datadir}/nginx/modules
+install -p -d -m 0755 %{buildroot}%{_libdir}/nginx/modules
+
+install -p -m 0644 %{SOURCE12} \
+    %{buildroot}%{_sysconfdir}/nginx
+install -p -m 0644 %{SOURCE13} %{SOURCE14} %{SOURCE15} \
+    %{buildroot}%{_sysconfdir}/nginx/conf.d
 install -p -m 0644 %{SOURCE100} \
-    %{buildroot}%{nginx_webroot}
+    %{buildroot}%{_datadir}/nginx/html
 install -p -m 0644 %{SOURCE101} %{SOURCE102} \
-    %{buildroot}%{nginx_webroot}
+    %{buildroot}%{_datadir}/nginx/html
 install -p -m 0644 %{SOURCE103} %{SOURCE104} \
-    %{buildroot}%{nginx_webroot}
+    %{buildroot}%{_datadir}/nginx/html
 
 install -p -D -m 0644 %{_builddir}/nginx-%{version}/man/nginx.8 \
     %{buildroot}%{_mandir}/man8/nginx.8
 
-install -p -D -m644 %{SOURCE200} \
-    %{buildroot}%{_datadir}/vim/vimfiles/ftdetect/nginx.vim
-install -p -D -m644 %{SOURCE201} \
-    %{buildroot}%{_datadir}/vim/vimfiles/indent/nginx.vim
-install -p -D -m644 %{SOURCE202} \
-    %{buildroot}%{_datadir}/vim/vimfiles/syntax/nginx.vim
+for i in ftdetect indent syntax; do
+    install -p -D -m644 contrib/vim/${i}/nginx.vim \
+        %{buildroot}%{_datadir}/vim/vimfiles/${i}/nginx.vim
+done
 
+echo 'load_module "%{_libdir}/nginx/modules/ngx_http_geoip_module.so";' \
+    > %{buildroot}%{_datadir}/nginx/modules/mod-http-geoip.conf
+echo 'load_module "%{_libdir}/nginx/modules/ngx_http_image_filter_module.so";' \
+    > %{buildroot}%{_datadir}/nginx/modules/mod-http-image-filter.conf
+echo 'load_module "%{_libdir}/nginx/modules/ngx_http_perl_module.so";' \
+    > %{buildroot}%{_datadir}/nginx/modules/mod-http-perl.conf
+echo 'load_module "%{_libdir}/nginx/modules/ngx_http_xslt_filter_module.so";' \
+    > %{buildroot}%{_datadir}/nginx/modules/mod-http-xslt-filter.conf
+echo 'load_module "%{_libdir}/nginx/modules/ngx_mail_module.so";' \
+    > %{buildroot}%{_datadir}/nginx/modules/mod-mail.conf
+echo 'load_module "%{_libdir}/nginx/modules/ngx_stream_module.so";' \
+    > %{buildroot}%{_datadir}/nginx/modules/mod-stream.conf
 
-%pre
-getent group %{nginx_group} > /dev/null || groupadd -r %{nginx_group}
+%pre filesystem
+getent group %{nginx_user} > /dev/null || groupadd -r %{nginx_user}
 getent passwd %{nginx_user} > /dev/null || \
-    useradd -r -d %{nginx_home} -g %{nginx_group} \
+    useradd -r -d %{_localstatedir}/lib/nginx -g %{nginx_user} \
     -s /sbin/nologin -c "Nginx web server" %{nginx_user}
 exit 0
 
@@ -195,9 +273,9 @@ if [ $1 -eq 1 ]; then
 fi
 if [ $1 -eq 2 ]; then
     # Make sure these directories are not world readable.
-    chmod 700 %{nginx_home}
-    chmod 700 %{nginx_home_tmp}
-    chmod 700 %{nginx_logdir}
+    chmod 700 %{_localstatedir}/lib/nginx
+    chmod 700 %{_localstatedir}/lib/nginx/tmp
+    chmod 700 %{_localstatedir}/log/nginx
 fi
 
 %preun
@@ -212,50 +290,80 @@ if [ $1 -eq 2 ]; then
 fi
 
 %files
-%doc LICENSE CHANGES README
-%{nginx_datadir}/html/*
+%doc LICENSE CHANGES README UPGRADE-NOTES-1.0-to-1.10
+%{_datadir}/nginx/html/*
 %{_sbindir}/nginx
 %{_datadir}/vim/vimfiles/ftdetect/nginx.vim
 %{_datadir}/vim/vimfiles/syntax/nginx.vim
 %{_datadir}/vim/vimfiles/indent/nginx.vim
 %{_mandir}/man3/nginx.3pm*
 %{_mandir}/man8/nginx.8*
-%{_initrddir}/nginx
-%dir %{nginx_confdir}
-%dir %{nginx_confdir}/conf.d
-%config(noreplace) %{nginx_confdir}/fastcgi.conf
-%config(noreplace) %{nginx_confdir}/fastcgi.conf.default
-%config(noreplace) %{nginx_confdir}/fastcgi_params
-%config(noreplace) %{nginx_confdir}/fastcgi_params.default
-%config(noreplace) %{nginx_confdir}/koi-utf
-%config(noreplace) %{nginx_confdir}/koi-win
-%config(noreplace) %{nginx_confdir}/mime.types
-%config(noreplace) %{nginx_confdir}/mime.types.default
-%config(noreplace) %{nginx_confdir}/nginx.conf
-%config(noreplace) %{nginx_confdir}/nginx.conf.default
-%config(noreplace) %{nginx_confdir}/scgi_params
-%config(noreplace) %{nginx_confdir}/scgi_params.default
-%config(noreplace) %{nginx_confdir}/uwsgi_params
-%config(noreplace) %{nginx_confdir}/uwsgi_params.default
-%config(noreplace) %{nginx_confdir}/win-utf
-%config(noreplace) %{nginx_confdir}/conf.d/*.conf
-%config(noreplace) %{_sysconfdir}/logrotate.d/nginx
 %config(noreplace) %{_sysconfdir}/sysconfig/nginx
+%{_initrddir}/nginx
+%config(noreplace) %{_sysconfdir}/nginx/fastcgi.conf
+%config(noreplace) %{_sysconfdir}/nginx/fastcgi.conf.default
+%config(noreplace) %{_sysconfdir}/nginx/fastcgi_params
+%config(noreplace) %{_sysconfdir}/nginx/fastcgi_params.default
+%config(noreplace) %{_sysconfdir}/nginx/koi-utf
+%config(noreplace) %{_sysconfdir}/nginx/koi-win
+%config(noreplace) %{_sysconfdir}/nginx/mime.types
+%config(noreplace) %{_sysconfdir}/nginx/mime.types.default
+%config(noreplace) %{_sysconfdir}/nginx/nginx.conf
+%config(noreplace) %{_sysconfdir}/nginx/nginx.conf.default
+%config(noreplace) %{_sysconfdir}/nginx/scgi_params
+%config(noreplace) %{_sysconfdir}/nginx/scgi_params.default
+%config(noreplace) %{_sysconfdir}/nginx/uwsgi_params
+%config(noreplace) %{_sysconfdir}/nginx/uwsgi_params.default
+%config(noreplace) %{_sysconfdir}/nginx/win-utf
+%config(noreplace) %{_sysconfdir}/nginx/conf.d/*.conf
+%config(noreplace) %{_sysconfdir}/logrotate.d/nginx
+%attr(700,%{nginx_user},%{nginx_user}) %dir %{_localstatedir}/lib/nginx
+%attr(700,%{nginx_user},%{nginx_user}) %dir %{_localstatedir}/lib/nginx/tmp
+%attr(700,%{nginx_user},%{nginx_user}) %dir %{_localstatedir}/log/nginx
+%dir %{_libdir}/nginx/modules
+%files all-modules
+
+%files filesystem
+%dir %{_datadir}/nginx
+%dir %{_datadir}/nginx/html
+%dir %{_sysconfdir}/nginx
+%dir %{_sysconfdir}/nginx/conf.d
+%dir %{_sysconfdir}/nginx/default.d
+
+%files mod-http-geoip
+%{_datadir}/nginx/modules/mod-http-geoip.conf
+%{_libdir}/nginx/modules/ngx_http_geoip_module.so
+
+%files mod-http-image-filter
+%{_datadir}/nginx/modules/mod-http-image-filter.conf
+%{_libdir}/nginx/modules/ngx_http_image_filter_module.so
+
+%files mod-http-perl
+%{_datadir}/nginx/modules/mod-http-perl.conf
+%{_libdir}/nginx/modules/ngx_http_perl_module.so
 %dir %{perl_vendorarch}/auto/nginx
 %{perl_vendorarch}/nginx.pm
 %{perl_vendorarch}/auto/nginx/nginx.so
-%attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_home}
-%attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_home_tmp}
-%attr(700,%{nginx_user},%{nginx_group}) %dir %{nginx_logdir}
 
-%files filesystem
-%dir %{nginx_datadir}
-%dir %{nginx_datadir}/html
-%dir %{nginx_confdir}
-%dir %{nginx_confdir}/conf.d
-%dir %{nginx_confdir}/default.d
+%files mod-http-xslt-filter
+%{_datadir}/nginx/modules/mod-http-xslt-filter.conf
+%{_libdir}/nginx/modules/ngx_http_xslt_filter_module.so
+
+%files mod-mail
+%{_datadir}/nginx/modules/mod-mail.conf
+%{_libdir}/nginx/modules/ngx_mail_module.so
+
+%files mod-stream
+%{_datadir}/nginx/modules/mod-stream.conf
+%{_libdir}/nginx/modules/ngx_stream_module.so
+
 
 %changelog
+* Sat Jul 02 2016 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.10.1-1
+- update to upstream release 1.10.1
+- split dynamic modules into subpackages
+- spec file cleanup
+
 * Tue Jun 16 2015 Jamie Nguyen <jamielinux@fedoraproject.org> - 1.0.15-12
 - fix path to png images in error pages (#1232277)
 - optimize png images with optipng

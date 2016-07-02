@@ -4,4 +4,5 @@ x86_64/
 .*.log
 *swp
 *.rpm
-/nginx-1.0.15.tar.gz
+/nginx-*.tar.gz
+/nginx-*.tar.gz.asc
