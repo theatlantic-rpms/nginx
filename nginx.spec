@@ -27,7 +27,8 @@ Source102:         nginx-logo.png
 Source103:         404.html
 Source104:         50x.html
 Source200:         README.dynamic
-Source210:         UPGRADE-NOTES-1.0-to-1.10
+Source210:         UPGRADE-NOTES-0.8-to-1.10
+Source211:         UPGRADE-NOTES-1.0-to-1.10
 
 # removes -Werror in upstream build scripts.  -Werror conflicts with
 # -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
@@ -144,6 +145,7 @@ Requires:          nginx
 %patch0 -p0
 cp %{SOURCE200} .
 cp %{SOURCE210} .
+cp %{SOURCE211} .
 
 
 %build
@@ -290,7 +292,12 @@ if [ $1 -eq 2 ]; then
 fi
 
 %files
-%doc LICENSE CHANGES README README.dynamic UPGRADE-NOTES-1.0-to-1.10
+%doc LICENSE CHANGES README README.dynamic
+%if 0%{rhel} == 5
+%doc UPGRADE-NOTES-0.8-to-1.10
+%else
+%doc UPGRADE-NOTES-1.0-to-1.10
+%endif
 %{_datadir}/nginx/html/*
 %{_sbindir}/nginx
 %{_datadir}/vim/vimfiles/ftdetect/nginx.vim
