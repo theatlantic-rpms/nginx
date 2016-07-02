@@ -26,7 +26,7 @@ Source101:         poweredby.png
 Source102:         nginx-logo.png
 Source103:         404.html
 Source104:         50x.html
-Source200:         README.epel
+Source200:         README.dynamic
 Source210:         UPGRADE-NOTES-1.0-to-1.10
 
 # removes -Werror in upstream build scripts.  -Werror conflicts with
@@ -290,7 +290,7 @@ if [ $1 -eq 2 ]; then
 fi
 
 %files
-%doc LICENSE CHANGES README UPGRADE-NOTES-1.0-to-1.10
+%doc LICENSE CHANGES README README.dynamic UPGRADE-NOTES-1.0-to-1.10
 %{_datadir}/nginx/html/*
 %{_sbindir}/nginx
 %{_datadir}/vim/vimfiles/ftdetect/nginx.vim
