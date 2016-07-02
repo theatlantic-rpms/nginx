@@ -106,7 +106,9 @@ Requires:          gd
 %package mod-http-perl
 Group:             System Environment/Daemons
 Summary:           Nginx HTTP perl module
+%if 0%{?rhel} > 5
 BuildRequires:     perl-devel
+%endif
 BuildRequires:     perl(ExtUtils::Embed)
 Requires:          nginx
 Requires:          perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
