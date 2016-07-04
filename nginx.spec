@@ -306,7 +306,7 @@ fi
 
 %files
 %doc LICENSE CHANGES README README.dynamic
-%if 0%{rhel} == 5
+%if 0%{?rhel} == 5
 %doc UPGRADE-NOTES-0.8-to-1.10
 %else
 %doc UPGRADE-NOTES-1.0-to-1.10
