@@ -7,6 +7,8 @@
 %bcond_without sregex
 # This module does not currently work
 %bcond_with x_rid_header
+# This also doesn't work
+%bcond_with upstream_check
 
 
 %define ngx_sorted_query_string_version  0.3
@@ -53,7 +55,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.11.6
-Release:           1%{?dist}
+Release:           3%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -120,6 +122,7 @@ Patch102: lua-upstream-cache-nginx-module.dynamic-module.patch
 Patch103: nginx-sticky.dynamic-module.patch
 Patch106: ngx_cache_purge.dynamic-module.patch
 Patch116: ngx_upload.dynamic-module.patch
+Patch117: ngx_http_dyups.dynamic-module.patch
 
 # https://raw.githubusercontent.com/openresty/openresty/dbccee1418ddb24a2adabd80b0737595b7fd577e/patches/nginx-1.11.2-ssl_cert_cb_yield.patch
 Patch201: nginx-1.11.2-ssl_cert_cb_yield.patch
@@ -157,8 +160,10 @@ Requires(postun):  systemd
 Nginx is a web server and a reverse proxy server for HTTP, SMTP, POP3 and
 IMAP protocols, with a strong focus on high concurrency, performance and low
 memory usage.
+%if %{with upstream_check}
 
-Comes bundled with ngx_http_dyups_module and ngx_http_upstream_check_module.
+Comes bundled with ngx_http_dyups_module and ngx_http_upstream_check_module
+%endif
 
 %package all-modules
 Group:             System Environment/Daemons
@@ -417,6 +422,19 @@ Requires:          nginx
 %description mod-http-rdns
 %{summary}.
 
+%if !%{with upstream_check}
+%package mod-http-dyups
+Summary:           Nginx HTTP Dynamic Upstreams module
+Group:             System Environment/Daemons
+Requires:          nginx
+%if %{with lua}
+Requires:          nginx-http-lua
+%endif
+
+%description mod-http-dyups
+%{summary}.
+%endif
+
 %if %{with sregex}
 %package mod-http-replace-filter
 Summary:           Nginx HTTP replace filter module
@@ -515,9 +533,12 @@ BuildRequires:     ruby-devel
 %patch103 -d ./nginx-goodies-nginx-sticky-module-ng-%{ngx_sticky_sha} -p1
 %patch106 -d ./ngx_cache_purge-%{ngx_cache_purge_sha} -p1
 %patch116 -d ./nginx-upload-module-%{ngx_upload_version} -p1
+%patch117 -d ./ngx_http_dyups_module-%{ngx_dyups_sha} -p1
 %patch201 -p1
 %patch202 -p1
+%if %{with upstream_check}
 patch -p0 < ./nginx_upstream_check_module-%{ngx_upstream_check_sha}/check_1.11.5+.patch
+%endif
 mv psol ngx_pagespeed-%{ngx_pagespeed_version}
 cp %{SOURCE200} .
 
@@ -609,9 +630,13 @@ SREGEX_LIB=%{_libdir} \
     --add-dynamic-module=./srcache-nginx-module-%{ngx_srcache_sha} \
     --add-dynamic-module=./redis2-nginx-module-%{ngx_redis2_sha} \
     --add-dynamic-module=./ngx_http_redis-%{ngx_redis_version} \
-    --add-module=./ngx_http_dyups_module-%{ngx_dyups_sha} \
     --add-dynamic-module=./echo-nginx-module-%{ngx_echo_version} \
+%if %{with upstream_check}
+    --add-module=./ngx_http_dyups_module-%{ngx_dyups_sha} \
     --add-module=./nginx_upstream_check_module-%{ngx_upstream_check_sha} \
+%else
+    --add-dynamic-module=./ngx_http_dyups_module-%{ngx_dyups_sha} \
+%endif
     --add-dynamic-module=./njs-%{ngx_njs_sha}/nginx \
     --add-dynamic-module=./nginx-upload-module-%{ngx_upload_version} \
     --add-dynamic-module=./nginx-upload-progress-module-%{ngx_upload_progress_version} \
@@ -742,6 +767,11 @@ echo 'load_module "%{_libdir}/nginx/modules/ngx_http_js_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-njs.conf
 echo 'load_module "%{_libdir}/nginx/modules/ngx_stream_js_module.so";' \
     >> %{buildroot}%{_datadir}/nginx/modules/mod-njs.conf
+
+%if !%{with upstream_check}
+echo 'load_module "%{_libdir}/nginx/modules/ngx_http_dyups_module.so";' \
+    >> %{buildroot}%{_datadir}/nginx/modules/mod-http-dyups.conf
+%endif
 
 %if %{with x_rid_header}
 echo 'load_module "%{_libdir}/nginx/modules/ngx_x_rid_header_module.so";' \
@@ -897,6 +927,13 @@ fi
 if [ $1 -eq 1 ]; then
     /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
 fi
+
+%if !%{with upstream_check}
+%post mod-http-dyups
+if [ $1 -eq 1 ]; then
+    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+fi
+%endif
 
 %if %{with x_rid_header}
 %post mod-x-rid-header
@@ -1093,6 +1130,12 @@ fi
 %{_datadir}/nginx/modules/mod-njs.conf
 %{_libdir}/nginx/modules/ngx_http_js_module.so
 %{_libdir}/nginx/modules/ngx_stream_js_module.so
+
+%if !%{with upstream_check}
+%files mod-http-dyups
+%{_datadir}/nginx/modules/mod-http-dyups.conf
+%{_libdir}/nginx/modules/ngx_http_dyups_module.so
+%endif
 
 %if %{with x_rid_header}
 %files mod-x-rid-header
