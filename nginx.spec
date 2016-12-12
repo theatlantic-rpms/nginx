@@ -55,7 +55,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.11.6
-Release:           3%{?dist}
+Release:           6%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -427,9 +427,9 @@ Requires:          nginx
 Summary:           Nginx HTTP Dynamic Upstreams module
 Group:             System Environment/Daemons
 Requires:          nginx
-%if %{with lua}
-Requires:          nginx-http-lua
-%endif
+# %if %{with lua}
+# Requires:          nginx-mod-http-lua
+# %endif
 
 %description mod-http-dyups
 %{summary}.
@@ -1181,6 +1181,13 @@ fi
 
 
 %changelog
+* Sun Dec 11 2016 Frankie Dintino <fdintino@gmail.com> - 1:1.11.6-4
+- Fix typo in lua Requires: of nginx-mod-http-dyups
+
+* Fri Dec 09 2016 Frankie Dintino <fdintino@gmail.com> - 1:1.11.6-1
+- update to upstream release 1.11.6
+- add a bunch of dynamic modules
+
 * Mon Oct 31 2016 Jamie Nguyen <jamielinux@fedoraproject.org> - 1:1.10.2-1
 - update to upstream release 1.10.2
 
