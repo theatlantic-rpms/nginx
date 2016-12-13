@@ -55,7 +55,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.11.6
-Release:           6%{?dist}
+Release:           7%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -123,6 +123,7 @@ Patch103: nginx-sticky.dynamic-module.patch
 Patch106: ngx_cache_purge.dynamic-module.patch
 Patch116: ngx_upload.dynamic-module.patch
 Patch117: ngx_http_dyups.dynamic-module.patch
+Patch118: ngx_http_dyups.segfault-fix.patch
 
 # https://raw.githubusercontent.com/openresty/openresty/dbccee1418ddb24a2adabd80b0737595b7fd577e/patches/nginx-1.11.2-ssl_cert_cb_yield.patch
 Patch201: nginx-1.11.2-ssl_cert_cb_yield.patch
@@ -534,6 +535,7 @@ BuildRequires:     ruby-devel
 %patch106 -d ./ngx_cache_purge-%{ngx_cache_purge_sha} -p1
 %patch116 -d ./nginx-upload-module-%{ngx_upload_version} -p1
 %patch117 -d ./ngx_http_dyups_module-%{ngx_dyups_sha} -p1
+%patch118 -d ./ngx_http_dyups_module-%{ngx_dyups_sha} -p1
 %patch201 -p1
 %patch202 -p1
 %if %{with upstream_check}
