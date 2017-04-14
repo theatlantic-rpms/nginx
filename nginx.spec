@@ -55,7 +55,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.11.6
-Release:           7%{?dist}
+Release:           8%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -133,7 +133,6 @@ Patch202: nginx-1.11.2-ssl_pending_session.patch
 %if 0%{?with_gperftools}
 BuildRequires:     gperftools-devel
 %endif
-BuildRequires:     openssl-devel
 BuildRequires:     pcre-devel
 BuildRequires:     zlib-devel
 
@@ -144,7 +143,6 @@ Requires:          nginx-filesystem = %{epoch}:%{version}-%{release}
 # Requires:          nginx-all-modules = %{epoch}:%{version}-%{release}
 # %endif
 
-Requires:          openssl
 Requires:          pcre
 Requires(pre):     nginx-filesystem
 %if 0%{?with_mailcap_mimetypes}
@@ -585,6 +583,7 @@ SREGEX_LIB=%{_libdir} \
     --with-file-aio \
 %endif
     --with-http_ssl_module \
+    --with-openssl=./openssl-%{ngx_openssl_version} \
     --with-http_v2_module \
     --with-http_realip_module \
     --with-http_addition_module \
@@ -653,8 +652,10 @@ SREGEX_LIB=%{_libdir} \
     --add-dynamic-module=./replace-filter-nginx-module-%{ngx_replace_filter_sha} \
 %endif  # with sregex
     --with-debug \
-    --with-cc-opt="%{optflags} $(pcre-config --cflags)" \
-    --with-ld-opt="$RPM_LD_FLAGS -Wl,-E" # so the perl module finds its symbols
+    --with-cc-opt="%{optflags} $(pcre-config --cflags) -fPIC" \
+    --with-ld-opt="$RPM_LD_FLAGS -Wl,-E -Wl,-z,now -pie" # so the perl module finds its symbols
+
+sed -i 's|openssl no\-shared|openssl no-shared -fPIC|' objs/Makefile
 
 make %{?_smp_mflags}
 
