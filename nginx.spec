@@ -10,9 +10,14 @@
 # This also doesn't work
 %bcond_with upstream_check
 
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
+%bcond_without systemd
+%else
+%bcond_with systemd
+%endif
 
 %define ngx_sorted_query_string_version  0.3
-%define ngx_lua_version             0.10.7
+%define ngx_lua_version             0.10.8
 %define ngx_openssl_version         1.0.2j
 %define ngx_lua_upstream_sha        e91cf554ef0cd3d5c8e58b11888ddfe652a7497d
 %define ngx_lua_upstream_cache_sha  cea46bd2a940c543905583068aa1fb87845ac463
@@ -34,7 +39,7 @@
 %define ngx_x_rid_sha               f3f61183d035796b4b78ad710b3a086e3d98dd82
 %define ngx_sticky_sha              08a395c66e42
 %define ngx_rdns_sha                a32deecaf1fa4be4bd445c2b770283d20bf61da6
-%define ngx_pagespeed_version       1.11.33.4-beta
+%define ngx_pagespeed_version       1.11.33.4
 %define ngx_vts_version             0.1.11
 %define ngx_replace_filter_sha      2c7f0656c816e347ba43a7909120d434a168044c
 
@@ -54,8 +59,8 @@
 
 Name:              nginx
 Epoch:             1
-Version:           1.11.6
-Release:           8%{?dist}
+Version:           1.12.0
+Release:           1%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -71,6 +76,7 @@ Source11:          nginx.logrotate
 Source12:          nginx.conf
 Source13:          nginx-upgrade
 Source14:          nginx-upgrade.8
+Source15:          nginx.init
 Source100:         index.html
 Source101:         poweredby.png
 Source102:         nginx-logo.png
@@ -100,8 +106,8 @@ Source317: https://github.com/masterzen/nginx-upload-progress-module/archive/v%{
 Source318: https://github.com/kriegsmanj/nginx-x-rid-header/archive/%{ngx_x_rid_sha}.tar.gz#/nginx-x-rid-header-%{ngx_x_rid_sha}.tar.gz
 Source319: https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng/get/%{ngx_sticky_sha}.tar.gz#/nginx-goodies-nginx-sticky-module-ng-%{ngx_sticky_sha}.tar.gz
 Source320: https://github.com/flant/nginx-http-rdns/archive/%{ngx_rdns_sha}.tar.gz#/nginx-http-rdns-%{ngx_rdns_sha}.tar.gz
-Source321: https://github.com/pagespeed/ngx_pagespeed/archive/v%{ngx_pagespeed_version}.tar.gz#/ngx_pagespeed-%{ngx_pagespeed_version}.tar.gz
-Source322: https://dl.google.com/dl/page-speed/psol/1.11.33.4.tar.gz#/psol-1.11.33.4.tar.gz
+Source321: https://github.com/pagespeed/ngx_pagespeed/archive/v%{ngx_pagespeed_version}-beta.tar.gz#/ngx_pagespeed-%{ngx_pagespeed_version}-beta.tar.gz
+Source322: https://dl.google.com/dl/page-speed/psol/%{ngx_pagespeed_version}.tar.gz#/psol-%{ngx_pagespeed_version}.tar.gz
 Source323: https://github.com/vozlt/nginx-module-vts/archive/v%{ngx_vts_version}.tar.gz#/nginx-module-vts-%{ngx_vts_version}.tar.gz
 Source324: https://github.com/openresty/replace-filter-nginx-module/archive/%{ngx_replace_filter_sha}.tar.gz#/replace-filter-nginx-module-%{ngx_replace_filter_sha}.tar.gz
 Source330: http://people.freebsd.org/~osa/ngx_http_redis-%{ngx_redis_version}.tar.gz
@@ -124,6 +130,8 @@ Patch106: ngx_cache_purge.dynamic-module.patch
 Patch116: ngx_upload.dynamic-module.patch
 Patch117: ngx_http_dyups.dynamic-module.patch
 Patch118: ngx_http_dyups.segfault-fix.patch
+Patch119: lua-nginx-module.fixes.patch
+Patch120: echo-nginx-module.fixes.patch
 
 # https://raw.githubusercontent.com/openresty/openresty/dbccee1418ddb24a2adabd80b0737595b7fd577e/patches/nginx-1.11.2-ssl_cert_cb_yield.patch
 Patch201: nginx-1.11.2-ssl_cert_cb_yield.patch
@@ -150,10 +158,18 @@ Requires:          nginx-mimetypes
 %endif
 Provides:          webserver
 
+%if %{with systemd}
 BuildRequires:     systemd
 Requires(post):    systemd
 Requires(preun):   systemd
 Requires(postun):  systemd
+%else
+Requires(post):    chkconfig
+Requires(preun):   chkconfig
+Requires(preun):   initscripts
+Requires(postun):  initscripts
+%endif
+
 
 %description
 Nginx is a web server and a reverse proxy server for HTTP, SMTP, POP3 and
@@ -409,6 +425,9 @@ Requires:          nginx
 Summary:           Nginx PageSpeed module
 Group:             System Environment/Daemons
 Requires:          nginx
+%if 0%{rhel} <= 6
+BuildRequires: devtoolset-2-gcc-c++ devtoolset-2-binutils
+%endif
 
 %description mod-pagespeed
 Automatic PageSpeed optimization module for Nginx.
@@ -534,12 +553,14 @@ BuildRequires:     ruby-devel
 %patch116 -d ./nginx-upload-module-%{ngx_upload_version} -p1
 %patch117 -d ./ngx_http_dyups_module-%{ngx_dyups_sha} -p1
 %patch118 -d ./ngx_http_dyups_module-%{ngx_dyups_sha} -p1
+%patch119 -d ./lua-nginx-module-%{ngx_lua_version} -p1
+%patch120 -d ./echo-nginx-module-%{ngx_echo_version} -p1
 %patch201 -p1
 %patch202 -p1
 %if %{with upstream_check}
 patch -p0 < ./nginx_upstream_check_module-%{ngx_upstream_check_sha}/check_1.11.5+.patch
 %endif
-mv psol ngx_pagespeed-%{ngx_pagespeed_version}
+mv psol ngx_pagespeed-%{ngx_pagespeed_version}-beta
 cp %{SOURCE200} .
 
 %if 0%{?rhel} < 8
@@ -646,12 +667,15 @@ SREGEX_LIB=%{_libdir} \
 %endif
     --add-dynamic-module=./nginx-goodies-nginx-sticky-module-ng-%{ngx_sticky_sha} \
     --add-dynamic-module=./nginx-http-rdns-%{ngx_rdns_sha} \
-    --add-dynamic-module=./ngx_pagespeed-%{ngx_pagespeed_version} \
+    --add-dynamic-module=./ngx_pagespeed-%{ngx_pagespeed_version}-beta \
     --add-dynamic-module=./nginx-module-vts-%{ngx_vts_version} \
 %if %{with sregex}
     --add-dynamic-module=./replace-filter-nginx-module-%{ngx_replace_filter_sha} \
 %endif  # with sregex
     --with-debug \
+%if 0%{rhel} <= 6
+    --with-cc=/opt/rh/devtoolset-2/root/usr/bin/gcc \
+%endif
     --with-cc-opt="%{optflags} $(pcre-config --cflags) -fPIC" \
     --with-ld-opt="$RPM_LD_FLAGS -Wl,-E -Wl,-z,now -pie" # so the perl module finds its symbols
 
@@ -668,8 +692,12 @@ find %{buildroot} -type f -name perllocal.pod -exec rm -f '{}' \;
 find %{buildroot} -type f -empty -exec rm -f '{}' \;
 find %{buildroot} -type f -iname '*.so' -exec chmod 0755 '{}' \;
 
-install -p -D -m 0644 %{SOURCE10} \
-    %{buildroot}%{_unitdir}/nginx.service
+%if %{with systemd}
+install -p -D -m 0644 %{SOURCE10} %{buildroot}%{_unitdir}/%{name}.service
+%else
+install -p -D -m 0755 %{SOURCE15} %{buildroot}%{_initddir}/%{name}
+%endif
+
 install -p -D -m 0644 %{SOURCE11} \
     %{buildroot}%{_sysconfdir}/logrotate.d/nginx
 
@@ -814,181 +842,328 @@ getent passwd %{nginx_user} > /dev/null || \
 exit 0
 
 %post
+%if %{with systemd}
+echo "Executing systemd post-install tasks"
 %systemd_post nginx.service
+%else
+echo "Executing System V post-install tasks"
+/sbin/chkconfig --add %{name}
+%endif
 
 %post mod-http-geoip
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-image-filter
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-perl
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-xslt-filter
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-mail
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-stream
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-devel-kit
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-array-var
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-headers-more-filter
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-sorted-querystring
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-rtmp
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-cache-purge
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-redis
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-redis2
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-srcache-filter
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-echo
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-upload
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-uploadprogress
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-vts
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-pagespeed
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-rdns
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-sticky
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-njs
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %if !%{with upstream_check}
 %post mod-http-dyups
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 %endif
 
 %if %{with x_rid_header}
 %post mod-x-rid-header
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 %endif  # with x_rid_header
 
 %if %{with lua}
 %post mod-http-lua
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-lua-cache
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 
 %post mod-http-lua-upstream
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 %endif  # with lua
 
 %if %{with java}
 %post mod-http-clojure
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 %endif  # with java
 
 %if %{with passenger}
 %post mod-passenger
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 %endif  # with passenger
 
 %if %{with sregex}
 %post mod-http-replace-filter
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl reload nginx.service >/dev/null 2>&1 || :
+%if %{with systemd}
+    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
+%else
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+%endif
 fi
 %endif  # with sregex
 
 
 %preun
+%if %{with systemd}
+echo "Executing systemd pre-uninstall tasks"
 %systemd_preun nginx.service
+%else
+echo "Executing System V pre-uninstall tasks"
+if [ $1 -eq 0 ] ; then
+    /sbin/service %{name} stop >/dev/null 2>&1
+    /sbin/chkconfig --del %{name}
+fi
+%endif
 
 %postun
+%if %{with systemd}
+echo "Executing systemd post-uninstall tasks"
 %systemd_postun nginx.service
+%else
+echo "Executing System V post-uninstall tasks"
+if [ "$1" -ge "1" ] ; then
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+fi
+%endif
 if [ $1 -ge 1 ]; then
     /usr/bin/nginx-upgrade >/dev/null 2>&1 || :
 fi
@@ -1005,7 +1180,13 @@ fi
 %{_mandir}/man3/nginx.3pm*
 %{_mandir}/man8/nginx.8*
 %{_mandir}/man8/nginx-upgrade.8*
-%{_unitdir}/nginx.service
+
+%if %{with systemd}
+%config %{_unitdir}/%{name}.service
+%else
+%{_initddir}/%{name}
+%endif
+
 %config(noreplace) %{_sysconfdir}/nginx/fastcgi.conf
 %config(noreplace) %{_sysconfdir}/nginx/fastcgi.conf.default
 %config(noreplace) %{_sysconfdir}/nginx/fastcgi_params

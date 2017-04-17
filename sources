@@ -1,9 +1,9 @@
-4e29a07a7c74376fa032e5af0d1c5369  nginx-1.11.6.tar.gz
-583f2997c24e0953835ccc40f5c3cc32  nginx-1.11.6.tar.gz.asc
+995eb0a140455cf0cfc497e5bd7f94b3  nginx-1.12.0.tar.gz
+dd6fa7c13963c73b65cc92092806c4a2  nginx-1.12.0.tar.gz.asc
 a27d8b91bb9cb8421e9963c9bc458421  array-var-nginx-module-844ccce047c104b1c47d464292cf01c926e8a6c4.tar.gz
 897338c2c4bc44f2d56ae06ab9820372  echo-nginx-module-v0.60.tar.gz
 5ce112f12afe155749e2c504997861f7  headers-more-nginx-module-v0.32.tar.gz
-6eb0161f495bb996af6bbb58f3cef764  lua-nginx-module-0.10.7.tar.gz
+842e043ddcdac92cb9046635ff364541  lua-nginx-module-0.10.8.tar.gz
 b650fb036fdc164f1b5bb796662ba452  lua-upstream-cache-nginx-module-cea46bd2a940c543905583068aa1fb87845ac463.tar.gz
 5440e4d7c40465cf64b3d4b36cb98db7  lua-upstream-nginx-module-e91cf554ef0cd3d5c8e58b11888ddfe652a7497d.tar.gz
 895d3ae6a072da4a46472107001abfc7  nginx-clojure-1f9ec0231198cb3b78808b82cad6d26cd471dc75.tar.gz
