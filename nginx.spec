@@ -59,7 +59,7 @@
 
 Name:              nginx
 Epoch:             1
-Version:           1.12.0
+Version:           1.12.1
 Release:           1%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
@@ -1365,6 +1365,9 @@ fi
 
 
 %changelog
+* Thu Aug 10 2017 Frankie Dintino <fdintino@gmail.com> - 1:1.12.1-1
+- Update to upstream release 1.12.1
+
 * Sun Dec 11 2016 Frankie Dintino <fdintino@gmail.com> - 1:1.11.6-4
 - Fix typo in lua Requires: of nginx-mod-http-dyups
 
