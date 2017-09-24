@@ -1,0 +1,30 @@
+From cb50eb278c1f96bb0eca21f4052a05e90d750d1c Mon Sep 17 00:00:00 2001
+From: Frankie Dintino <fdintino@gmail.com>
+Date: Sat, 23 Sep 2017 15:24:27 -0400
+Subject: [PATCH] fix segfault
+
+---
+ ngx_cache_purge_module.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/ngx_cache_purge_module.c b/ngx_cache_purge_module.c
+index 5ef49e6..7be6f9e 100644
+--- a/ngx_cache_purge_module.c
++++ b/ngx_cache_purge_module.c
+@@ -1248,11 +1248,11 @@ ngx_http_purge_file_cache_delete_partial_file(ngx_tree_ctx_t *ctx, ngx_str_t *pa
+         remove_file = 1;
+     } else {
+         ngx_file_t file;
+-
++        ngx_memzero(&file, sizeof(ngx_file_t));
+         file.offset = file.sys_offset = 0;
+         file.fd = ngx_open_file(path->data, NGX_FILE_RDONLY, NGX_FILE_OPEN,
+                                 NGX_FILE_DEFAULT_ACCESS);
+-
++        file.log = ctx->log;
+         /* I don't know if it's a good idea to use the ngx_cycle pool for this,
+            but the request is not available here */
+         key_in_file = ngx_pcalloc(ngx_cycle->pool, sizeof(u_char) * (len + 1));
+-- 
+2.11.0
+

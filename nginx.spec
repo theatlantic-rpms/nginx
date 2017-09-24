@@ -21,7 +21,7 @@
 %define ngx_openssl_version         1.0.2j
 %define ngx_lua_upstream_sha        e91cf554ef0cd3d5c8e58b11888ddfe652a7497d
 %define ngx_lua_upstream_cache_sha  cea46bd2a940c543905583068aa1fb87845ac463
-%define ngx_cache_purge_sha         331fe43e8d9a3d1fa5e0c9fec7d3201d431a9177
+%define ngx_cache_purge_sha         14495912201a078553bd91143bef070fec278662
 %define ngx_rtmp_sha                5150993accb5edefa61d71e1c81ad8c02f515428
 %define ngx_srcache_sha             af82f755b8a92765fff0b3e70b26bedf4bbacadc
 %define ngx_redis2_sha              8cc7304787ae9542db4feb50d9e27beb485caa0f
@@ -31,7 +31,6 @@
 %define ngx_upload_progress_version 0.9.2
 %define ngx_headers_more_version    0.32
 %define ngx_devel_kit_sha           e443262071e759c047492be60ec7e2d73c5b57ec
-%define ngx_clojure_sha             1f9ec0231198cb3b78808b82cad6d26cd471dc75
 %define ngx_array_var_sha           844ccce047c104b1c47d464292cf01c926e8a6c4
 %define ngx_dyups_sha               6fa254dc551d7774a84cc02301ebaf0e59209430
 %define ngx_upstream_check_sha      d6341aeeb86911d4798fbceab35015c63178e66f
@@ -42,6 +41,10 @@
 %define ngx_pagespeed_version       1.11.33.4
 %define ngx_vts_version             0.1.11
 %define ngx_replace_filter_sha      2c7f0656c816e347ba43a7909120d434a168044c
+%define ngx_clojure_sha             3bd36535686d9df9c774676a7e4405cec34da9a0
+%define ngx_clojure_jar_version     0.4.5
+%define ngx_clojure_tomcat_version  0.2.3
+%define ngx_clojure_jersey_version  0.1.4
 
 %define luajit_inc /usr/include/luajit-2.1
 %define luajit_lib /usr/lib64
@@ -60,7 +63,7 @@
 Name:              nginx
 Epoch:             1
 Version:           1.12.1
-Release:           1%{?dist}
+Release:           2%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -91,7 +94,7 @@ Source302: https://github.com/cloudflare/lua-nginx-cache-module/archive/%{ngx_lu
 Source303: https://github.com/simpl/ngx_devel_kit/archive/%{ngx_devel_kit_sha}.tar.gz#/ngx_devel_kit-%{ngx_devel_kit_sha}.tar.gz
 Source304: https://github.com/wandenberg/nginx-sorted-querystring-module/archive/%{ngx_sorted_query_string_version}.tar.gz#/nginx-sorted-querystring-module-%{ngx_sorted_query_string_version}.tar.gz
 Source305: https://github.com/arut/nginx-rtmp-module/archive/%{ngx_rtmp_sha}.tar.gz#/nginx-rtmp-module-%{ngx_rtmp_sha}.tar.gz
-Source306: https://github.com/FRiCKLE/ngx_cache_purge/archive/%{ngx_cache_purge_sha}.tar.gz#/ngx_cache_purge-%{ngx_cache_purge_sha}.tar.gz
+Source306: https://github.com/nginx-modules/ngx_cache_purge/archive/%{ngx_cache_purge_sha}.tar.gz#/ngx_cache_purge-%{ngx_cache_purge_sha}.tar.gz
 Source307: https://github.com/nginx-clojure/nginx-clojure/archive/%{ngx_clojure_sha}.tar.gz#/nginx-clojure-%{ngx_clojure_sha}.tar.gz
 Source308: https://github.com/openresty/array-var-nginx-module/archive/%{ngx_array_var_sha}.tar.gz#/array-var-nginx-module-%{ngx_array_var_sha}.tar.gz
 Source309: https://github.com/openresty/srcache-nginx-module/archive/%{ngx_srcache_sha}.tar.gz#/srcache-nginx-module-%{ngx_srcache_sha}.tar.gz
@@ -114,9 +117,9 @@ Source330: http://people.freebsd.org/~osa/ngx_http_redis-%{ngx_redis_version}.ta
 
 Source400: https://openssl.org/source/openssl-%{ngx_openssl_version}.tar.gz
 %if %{with java}
-Source401: http://clojars.org/repo/nginx-clojure/nginx-tomcat8/0.2.3/nginx-tomcat8-0.2.3.jar
-Source402: http://clojars.org/repo/nginx-clojure/nginx-jersey/0.1.3/nginx-jersey-0.1.3.jar
-Source403: http://clojars.org/repo/nginx-clojure/nginx-clojure/0.4.4/nginx-clojure-0.4.4.jar
+Source401: https://clojars.org/repo/nginx-clojure/nginx-tomcat8/%{ngx_clojure_tomcat_version}/nginx-tomcat8-%{ngx_clojure_tomcat_version}.jar
+Source402: https://clojars.org/repo/nginx-clojure/nginx-jersey/%{ngx_clojure_jersey_version}/nginx-jersey-%{ngx_clojure_jersey_version}.jar
+Source403: https://clojars.org/repo/nginx-clojure/nginx-clojure/%{ngx_clojure_jar_version}/nginx-clojure-%{ngx_clojure_jar_version}.jar
 %endif
 
 # removes -Werror in upstream build scripts.  -Werror conflicts with
@@ -126,7 +129,7 @@ Patch0:            nginx-auto-cc-gcc.patch
 Patch101: nginx-upstream-check-changes.patch
 Patch102: lua-upstream-cache-nginx-module.dynamic-module.patch
 Patch103: nginx-sticky.dynamic-module.patch
-Patch106: ngx_cache_purge.dynamic-module.patch
+Patch106: ngx_cache_purge.segfault-fix.patch
 Patch116: ngx_upload.dynamic-module.patch
 Patch117: ngx_http_dyups.dynamic-module.patch
 Patch118: ngx_http_dyups.segfault-fix.patch
@@ -210,7 +213,7 @@ directories.
 Group:             System Environment/Daemons
 Summary:           Nginx HTTP geoip module
 BuildRequires:     GeoIP-devel
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 Requires:          GeoIP
 
 %description mod-http-geoip
@@ -220,7 +223,7 @@ Requires:          GeoIP
 Group:             System Environment/Daemons
 Summary:           Nginx HTTP image filter module
 BuildRequires:     gd-devel
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 Requires:          gd
 
 %description mod-http-image-filter
@@ -234,7 +237,7 @@ BuildRequires:     perl-devel
 BuildRequires:     perl-generators
 %endif
 BuildRequires:     perl(ExtUtils::Embed)
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 Requires:          perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
 %description mod-http-perl
@@ -244,7 +247,7 @@ Requires:          perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $ve
 Group:             System Environment/Daemons
 Summary:           Nginx XSLT module
 BuildRequires:     libxslt-devel
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-xslt-filter
 %{summary}.
@@ -252,7 +255,7 @@ Requires:          nginx
 %package mod-mail
 Group:             System Environment/Daemons
 Summary:           Nginx mail modules
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-mail
 %{summary}.
@@ -260,7 +263,7 @@ Requires:          nginx
 %package mod-stream
 Group:             System Environment/Daemons
 Summary:           Nginx stream modules
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-stream
 %{summary}.
@@ -269,8 +272,8 @@ Requires:          nginx
 %package mod-http-lua
 Summary:           Nginx HTTP Lua module
 Group:             System Environment/Daemons
-Requires:          nginx
-Requires:          nginx-mod-devel-kit
+Requires:          nginx = %{epoch}:%{version}-%{release}
+Requires:          nginx-mod-devel-kit = %{epoch}:%{version}-%{release}
 BuildRequires:     luajit-devel
 
 %description mod-http-lua
@@ -279,7 +282,7 @@ Embed the Power of Lua into Nginx HTTP servers.
 %package mod-http-lua-cache
 Summary:           Nginx HTTP Lua upstream cache module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-lua-cache
 Nginx module for ngx_lua to provide Lua API to inspect upstream HTTP cache
@@ -288,7 +291,7 @@ meta-data.
 %package mod-http-lua-upstream
 Summary:           Nginx HTTP Lua upstream module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-lua-upstream
 Nginx C module to expose Lua API to ngx_lua for Nginx upstreams.
@@ -297,7 +300,7 @@ Nginx C module to expose Lua API to ngx_lua for Nginx upstreams.
 %package mod-devel-kit
 Summary:           Nginx Development Kit module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-devel-kit
 An Nginx module that adds additional generic tools that module developers can
@@ -306,8 +309,8 @@ use in their own modules.
 %package mod-http-array-var
 Summary:           Nginx Array Var module
 Group:             System Environment/Daemons
-Requires:          nginx
-Requires:          nginx-mod-devel-kit
+Requires:          nginx = %{epoch}:%{version}-%{release}
+Requires:          nginx-mod-devel-kit = %{epoch}:%{version}-%{release}
 
 %description mod-http-array-var
 Add support for array variables to Nginx config files.
@@ -315,7 +318,7 @@ Add support for array variables to Nginx config files.
 %package mod-http-headers-more-filter
 Summary:           Nginx HTTP Headers More module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-headers-more-filter
 Set, add, and clear arbitrary output headers in Nginx http servers.
@@ -323,7 +326,7 @@ Set, add, and clear arbitrary output headers in Nginx http servers.
 %package mod-http-sorted-querystring
 Summary:           Nginx HTTP sorted querystring module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-sorted-querystring
 %{summary}.
@@ -332,7 +335,7 @@ Requires:          nginx
 Summary:           Nginx RTMP media streaming module
 Group:             System Environment/Daemons
 URL:               http://nginx-rtmp.blogspot.com
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-rtmp
 %{summary}.
@@ -340,7 +343,7 @@ Requires:          nginx
 %package mod-http-cache-purge
 Summary:           Nginx HTTP cache purge module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-cache-purge
 Nginx module which adds ability to purge content from FastCGI, proxy, SCGI,
@@ -349,7 +352,7 @@ and uWSGI caches.
 %package mod-http-redis
 Summary:           Nginx HTTP Redis module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-redis
 Nginx module for simple redis caching.
@@ -357,7 +360,7 @@ Nginx module for simple redis caching.
 %package mod-http-redis2
 Summary:           Nginx HTTP Redis 2.0 module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-redis2
 Nginx upstream module for the Redis 2.0 protocol.
@@ -365,7 +368,7 @@ Nginx upstream module for the Redis 2.0 protocol.
 %package mod-http-srcache-filter
 Group:             System Environment/Daemons
 Summary:           Nginx HTTP srcache-filter module
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-srcache-filter
 Transparent subrequest-based caching layout for arbitrary nginx locations.
@@ -373,7 +376,7 @@ Transparent subrequest-based caching layout for arbitrary nginx locations.
 %package mod-http-echo
 Summary:           Nginx HTTP echo module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-echo
 An Nginx module for bringing the power of "echo", "sleep", "time" and more to
@@ -383,7 +386,7 @@ Nginx configs.
 Summary:           Nginx HTTP upload module
 Group:             System Environment/Daemons
 URL:               http://www.grid.net.ru/nginx/upload.en.html
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-upload
 A module for nginx web server for handling file uploads using
@@ -393,7 +396,7 @@ multipart/form-data encoding (RFC 1867).
 Summary:           Nginx HTTP upload progress module
 Group:             System Environment/Daemons
 URL:               http://wiki.codemongers.com/NginxHttpUploadProgressModule
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-uploadprogress
 Nginx module implementing an upload progress system, that monitors RFC1867
@@ -403,7 +406,7 @@ POST uploads as they are transmitted to upstream servers.
 %package mod-http-clojure
 Summary:           Nginx HTTP Clojure module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 Requires:          java-1.8.0-openjdk
 Requires:          clojure >= 1.5.1
 BuildRequires:     java-1.8.0-openjdk-devel
@@ -416,7 +419,7 @@ Nginx module for embedding Clojure, Java, and Groovy programs.
 %package mod-http-vts
 Summary:           Nginx virtual host traffic status module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-vts
 %{summary}.
@@ -424,7 +427,7 @@ Requires:          nginx
 %package mod-pagespeed
 Summary:           Nginx PageSpeed module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 %if 0%{rhel} <= 6
 BuildRequires: devtoolset-2-gcc-c++ devtoolset-2-binutils
 %endif
@@ -435,7 +438,7 @@ Automatic PageSpeed optimization module for Nginx.
 %package mod-http-rdns
 Summary:           Nginx HTTP rDNS module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-rdns
 %{summary}.
@@ -444,7 +447,7 @@ Requires:          nginx
 %package mod-http-dyups
 Summary:           Nginx HTTP Dynamic Upstreams module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 # %if %{with lua}
 # Requires:          nginx-mod-http-lua
 # %endif
@@ -457,7 +460,7 @@ Requires:          nginx
 %package mod-http-replace-filter
 Summary:           Nginx HTTP replace filter module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 Requires:          sregex
 BuildRequires:     sregex-devel
 
@@ -469,7 +472,7 @@ bodies.
 %package mod-selective-cache-purge
 Summary:           Nginx selective cache purge module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-selective-cache-purge
 Nginx module to purge cache by glob patterns.
@@ -477,7 +480,7 @@ Nginx module to purge cache by glob patterns.
 %package mod-http-sticky
 Summary:           Nginx sticky module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-http-sticky
 Nginx module to add a sticky cookie to be always forwarded to the same
@@ -487,7 +490,7 @@ upstream server.
 %package mod-x-rid-header
 Summary:           Nginx X-RID header module
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-x-rid-header
 Nginx module that adds a request id header that can be used to correlate
@@ -497,7 +500,7 @@ frontend and backend requests.
 %package mod-njs
 Summary:           Nginx HTTP and Stream JavaScript modules
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 
 %description mod-njs
 %{summary}.
@@ -506,7 +509,7 @@ Requires:          nginx
 %package mod-passenger
 Summary:           Nginx Phusion Passenger support
 Group:             System Environment/Daemons
-Requires:          nginx
+Requires:          nginx = %{epoch}:%{version}-%{release}
 Requires:          passenger
 BuildRequires:     passenger-devel
 BuildRequires:     ruby-devel
@@ -1345,9 +1348,9 @@ fi
 %files mod-http-clojure
 %{_datadir}/nginx/modules/mod-http-clojure.conf
 %{_libdir}/nginx/modules/ngx_http_clojure_module.so
-%{_javadir}/nginx-clojure-0.4.4.jar
-%{_javadir}/nginx-jersey-0.1.3.jar
-%{_javadir}/nginx-tomcat8-0.2.3.jar
+%{_javadir}/nginx-clojure-%{ngx_clojure_jar_version}.jar
+%{_javadir}/nginx-jersey-%{ngx_clojure_jersey_version}.jar
+%{_javadir}/nginx-tomcat8-%{ngx_clojure_tomcat_version}.jar
 %endif  # with java
 
 %if %{with passenger}
@@ -1365,6 +1368,10 @@ fi
 
 
 %changelog
+* Sat Sep 23 2017 Frankie Dintino <fdintino@gmail.com> - 1:1.12.1-2
+- Switch to better-maintained fork of ngx_cache_purge, fix segfault
+- Update to newer nginx-clojure jars
+
 * Thu Aug 10 2017 Frankie Dintino <fdintino@gmail.com> - 1:1.12.1-1
 - Update to upstream release 1.12.1
 
