@@ -21,13 +21,13 @@
 %define ngx_openssl_version         1.0.2j
 %define ngx_lua_upstream_sha        e91cf554ef0cd3d5c8e58b11888ddfe652a7497d
 %define ngx_lua_upstream_cache_sha  cea46bd2a940c543905583068aa1fb87845ac463
-%define ngx_cache_purge_sha         14495912201a078553bd91143bef070fec278662
+%define ngx_cache_purge_sha         8242f745f408aa4106ba2d0e3ae7867d7de6335f
 %define ngx_rtmp_sha                5150993accb5edefa61d71e1c81ad8c02f515428
 %define ngx_srcache_sha             af82f755b8a92765fff0b3e70b26bedf4bbacadc
 %define ngx_redis2_sha              8cc7304787ae9542db4feb50d9e27beb485caa0f
 %define ngx_redis_version           0.3.8
 %define ngx_echo_version            0.60
-%define ngx_upload_version          2.2
+%define ngx_upload_sha              57bbb0db23f113f2a8fa2d09d9193927b891fa75
 %define ngx_upload_progress_version 0.9.2
 %define ngx_headers_more_version    0.32
 %define ngx_devel_kit_sha           e443262071e759c047492be60ec7e2d73c5b57ec
@@ -61,8 +61,8 @@
 %endif
 
 Name:              nginx
-Epoch:             1
-Version:           1.12.1
+Epoch:             2
+Version:           1.12.2
 Release:           2%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
@@ -104,7 +104,7 @@ Source312: https://github.com/openresty/lua-upstream-nginx-module/archive/%{ngx_
 Source313: https://github.com/openresty/echo-nginx-module/archive/v%{ngx_echo_version}.tar.gz#/echo-nginx-module-v%{ngx_echo_version}.tar.gz
 Source314: https://github.com/yaoweibin/nginx_upstream_check_module/archive/%{ngx_upstream_check_sha}.tar.gz#/nginx_upstream_check_module-%{ngx_upstream_check_sha}.tar.gz
 Source315: https://github.com/nginx/njs/archive/%{ngx_njs_sha}.tar.gz#/njs-%{ngx_njs_sha}.tar.gz
-Source316: https://github.com/vkholodkov/nginx-upload-module/archive/%{ngx_upload_version}.tar.gz#/nginx-upload-module-%{ngx_upload_version}.tar.gz
+Source316: https://github.com/fdintino/nginx-upload-module/archive/%{ngx_upload_sha}.tar.gz#/nginx-upload-module-%{ngx_upload_sha}.tar.gz
 Source317: https://github.com/masterzen/nginx-upload-progress-module/archive/v%{ngx_upload_progress_version}.tar.gz#/nginx-upload-progress-module-v%{ngx_upload_progress_version}.tar.gz
 Source318: https://github.com/kriegsmanj/nginx-x-rid-header/archive/%{ngx_x_rid_sha}.tar.gz#/nginx-x-rid-header-%{ngx_x_rid_sha}.tar.gz
 Source319: https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng/get/%{ngx_sticky_sha}.tar.gz#/nginx-goodies-nginx-sticky-module-ng-%{ngx_sticky_sha}.tar.gz
@@ -129,8 +129,6 @@ Patch0:            nginx-auto-cc-gcc.patch
 Patch101: nginx-upstream-check-changes.patch
 Patch102: lua-upstream-cache-nginx-module.dynamic-module.patch
 Patch103: nginx-sticky.dynamic-module.patch
-Patch106: ngx_cache_purge.segfault-fix.patch
-Patch116: ngx_upload.dynamic-module.patch
 Patch117: ngx_http_dyups.dynamic-module.patch
 Patch118: ngx_http_dyups.segfault-fix.patch
 Patch119: lua-nginx-module.fixes.patch
@@ -552,8 +550,6 @@ BuildRequires:     ruby-devel
 %patch101 -d ./nginx_upstream_check_module-%{ngx_upstream_check_sha} -p1
 %patch102 -d ./lua-upstream-cache-nginx-module-%{ngx_lua_upstream_cache_sha} -p1
 %patch103 -d ./nginx-goodies-nginx-sticky-module-ng-%{ngx_sticky_sha} -p1
-%patch106 -d ./ngx_cache_purge-%{ngx_cache_purge_sha} -p1
-%patch116 -d ./nginx-upload-module-%{ngx_upload_version} -p1
 %patch117 -d ./ngx_http_dyups_module-%{ngx_dyups_sha} -p1
 %patch118 -d ./ngx_http_dyups_module-%{ngx_dyups_sha} -p1
 %patch119 -d ./lua-nginx-module-%{ngx_lua_version} -p1
@@ -663,7 +659,7 @@ SREGEX_LIB=%{_libdir} \
     --add-dynamic-module=./ngx_http_dyups_module-%{ngx_dyups_sha} \
 %endif
     --add-dynamic-module=./njs-%{ngx_njs_sha}/nginx \
-    --add-dynamic-module=./nginx-upload-module-%{ngx_upload_version} \
+    --add-dynamic-module=./nginx-upload-module-%{ngx_upload_sha} \
     --add-dynamic-module=./nginx-upload-progress-module-%{ngx_upload_progress_version} \
 %if %{with x_rid_header}
     --add-dynamic-module=./nginx-x-rid-header-%{ngx_x_rid_sha} \
@@ -1368,6 +1364,17 @@ fi
 
 
 %changelog
+* Tue Feb 21 2018 Frankie Dintino <fdintino@gmail.com> - 2:1.12.2-2
+- Update nginx-cache-purge module and nginx-upload-module (the latter
+  to support http2)
+
+* Mon Nov 20 2017 Frankie Dintino <fdintino@gmail.com> - 2:1.12.2-1
+- Bump epoch so we always trump epel
+- Update to 1.12.2
+
+* Mon Sep 25 2017 Frankie Dintino <fdintino@gmail.com> - 1:1.12.1-3
+- Update ngx_cache_purge
+
 * Sat Sep 23 2017 Frankie Dintino <fdintino@gmail.com> - 1:1.12.1-2
 - Switch to better-maintained fork of ngx_cache_purge, fix segfault
 - Update to newer nginx-clojure jars
