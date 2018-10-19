@@ -61,7 +61,7 @@
 %endif
 
 Name:              nginx
-Epoch:             2
+Epoch:             200
 Version:           1.12.2
 Release:           2%{?dist}
 
@@ -1364,7 +1364,10 @@ fi
 
 
 %changelog
-* Tue Feb 21 2018 Frankie Dintino <fdintino@gmail.com> - 2:1.12.2-2
+* Thu Jun 14 2018 Frankie Dintino <fdintino@gmail.com> - 200:1.12.2-2
+- Bump epoch to 200 so we trump the nginx packages in the passenger repo
+
+* Wed Feb 21 2018 Frankie Dintino <fdintino@gmail.com> - 2:1.12.2-2
 - Update nginx-cache-purge module and nginx-upload-module (the latter
   to support http2)
 
