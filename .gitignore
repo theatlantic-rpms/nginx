@@ -10,6 +10,7 @@ results_nginx
 /array-var-nginx-module-*.tar.gz
 /echo-nginx-module-*.tar.gz
 /headers-more-nginx-module-*.tar.gz
+/incubator-pagespeed-*.tar.gz
 /lua-nginx-module-*.tar.gz
 /lua-upstream-cache-nginx-module-*.tar.gz
 /lua-upstream-nginx-module-*.tar.gz

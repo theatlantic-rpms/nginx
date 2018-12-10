@@ -38,7 +38,7 @@
 %define ngx_x_rid_sha               f3f61183d035796b4b78ad710b3a086e3d98dd82
 %define ngx_sticky_sha              08a395c66e42
 %define ngx_rdns_sha                a32deecaf1fa4be4bd445c2b770283d20bf61da6
-%define ngx_pagespeed_version       1.11.33.4
+%define ngx_pagespeed_version       1.13.35.2
 %define ngx_vts_version             0.1.11
 %define ngx_replace_filter_sha      2c7f0656c816e347ba43a7909120d434a168044c
 %define ngx_clojure_sha             3bd36535686d9df9c774676a7e4405cec34da9a0
@@ -62,8 +62,8 @@
 
 Name:              nginx
 Epoch:             200
-Version:           1.12.2
-Release:           2%{?dist}
+Version:           1.14.2
+Release:           0%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
 Group:             System Environment/Daemons
@@ -109,8 +109,8 @@ Source317: https://github.com/masterzen/nginx-upload-progress-module/archive/v%{
 Source318: https://github.com/kriegsmanj/nginx-x-rid-header/archive/%{ngx_x_rid_sha}.tar.gz#/nginx-x-rid-header-%{ngx_x_rid_sha}.tar.gz
 Source319: https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng/get/%{ngx_sticky_sha}.tar.gz#/nginx-goodies-nginx-sticky-module-ng-%{ngx_sticky_sha}.tar.gz
 Source320: https://github.com/flant/nginx-http-rdns/archive/%{ngx_rdns_sha}.tar.gz#/nginx-http-rdns-%{ngx_rdns_sha}.tar.gz
-Source321: https://github.com/pagespeed/ngx_pagespeed/archive/v%{ngx_pagespeed_version}-beta.tar.gz#/ngx_pagespeed-%{ngx_pagespeed_version}-beta.tar.gz
-Source322: https://dl.google.com/dl/page-speed/psol/%{ngx_pagespeed_version}.tar.gz#/psol-%{ngx_pagespeed_version}.tar.gz
+Source321: https://github.com/apache/incubator-pagespeed-ngx/archive/v%{ngx_pagespeed_version}-stable.tar.gz#/incubator-pagespeed-ngx-%{ngx_pagespeed_version}-stable.tar.gz
+Source322: https://dl.google.com/dl/page-speed/psol/%{ngx_pagespeed_version}-x64.tar.gz#/psol-%{ngx_pagespeed_version}.tar.gz
 Source323: https://github.com/vozlt/nginx-module-vts/archive/v%{ngx_vts_version}.tar.gz#/nginx-module-vts-%{ngx_vts_version}.tar.gz
 Source324: https://github.com/openresty/replace-filter-nginx-module/archive/%{ngx_replace_filter_sha}.tar.gz#/replace-filter-nginx-module-%{ngx_replace_filter_sha}.tar.gz
 Source330: http://people.freebsd.org/~osa/ngx_http_redis-%{ngx_redis_version}.tar.gz
@@ -559,7 +559,7 @@ BuildRequires:     ruby-devel
 %if %{with upstream_check}
 patch -p0 < ./nginx_upstream_check_module-%{ngx_upstream_check_sha}/check_1.11.5+.patch
 %endif
-mv psol ngx_pagespeed-%{ngx_pagespeed_version}-beta
+mv psol incubator-pagespeed-ngx-%{ngx_pagespeed_version}-stable
 cp %{SOURCE200} .
 
 %if 0%{?rhel} < 8
@@ -666,7 +666,7 @@ SREGEX_LIB=%{_libdir} \
 %endif
     --add-dynamic-module=./nginx-goodies-nginx-sticky-module-ng-%{ngx_sticky_sha} \
     --add-dynamic-module=./nginx-http-rdns-%{ngx_rdns_sha} \
-    --add-dynamic-module=./ngx_pagespeed-%{ngx_pagespeed_version}-beta \
+    --add-dynamic-module=./incubator-pagespeed-ngx-%{ngx_pagespeed_version}-stable \
     --add-dynamic-module=./nginx-module-vts-%{ngx_vts_version} \
 %if %{with sregex}
     --add-dynamic-module=./replace-filter-nginx-module-%{ngx_replace_filter_sha} \
@@ -1364,6 +1364,10 @@ fi
 
 
 %changelog
+* Mon Dec 10 2018 Mike Howsden <mhowsden@theatlantic.com> - 200:1.14.2-0
+- Update to 1.14.2
+- Update ngx-pagespeed to 1.13.35.2
+
 * Thu Jun 14 2018 Frankie Dintino <fdintino@gmail.com> - 200:1.12.2-2
 - Bump epoch to 200 so we trump the nginx packages in the passenger repo
 

@@ -1,11 +1,12 @@
 a27d8b91bb9cb8421e9963c9bc458421  array-var-nginx-module-844ccce047c104b1c47d464292cf01c926e8a6c4.tar.gz
 897338c2c4bc44f2d56ae06ab9820372  echo-nginx-module-v0.60.tar.gz
 5ce112f12afe155749e2c504997861f7  headers-more-nginx-module-v0.32.tar.gz
+61552af16b0e2bcc602c243e0b5ac37e  incubator-pagespeed-ngx-1.13.35.2-stable.tar.gz
 842e043ddcdac92cb9046635ff364541  lua-nginx-module-0.10.8.tar.gz
 b650fb036fdc164f1b5bb796662ba452  lua-upstream-cache-nginx-module-cea46bd2a940c543905583068aa1fb87845ac463.tar.gz
 5440e4d7c40465cf64b3d4b36cb98db7  lua-upstream-nginx-module-e91cf554ef0cd3d5c8e58b11888ddfe652a7497d.tar.gz
-4d2fc76211435f029271f1cf6d7eeae3  nginx-1.12.2.tar.gz
-20f19b3a2f57463b0791291778e5529a  nginx-1.12.2.tar.gz.asc
+239b829a13cea1d244c1044e830bd9c2  nginx-1.14.2.tar.gz
+bd099068949094f64e516236c76dfc7a  nginx-1.14.2.tar.gz.asc
 3d53480231f093f741a05836688d240b  nginx-clojure-3bd36535686d9df9c774676a7e4405cec34da9a0.tar.gz
 792d353ad813250ec1b37c4d916a016c  nginx-goodies-nginx-sticky-module-ng-08a395c66e42.tar.gz
 22b336a6d2c1e6504a004e0b68d95b26  nginx-http-rdns-a32deecaf1fa4be4bd445c2b770283d20bf61da6.tar.gz
@@ -20,8 +21,7 @@ a04dc82eb33f57e7853ce1ae93267f29  nginx-x-rid-header-f3f61183d035796b4b78ad710b3
 4eb947c9747f3306b34fa2d438b7fc35  ngx_devel_kit-e443262071e759c047492be60ec7e2d73c5b57ec.tar.gz
 ed95721103bfb91fadab3da5daf2a05d  ngx_http_dyups_module-6fa254dc551d7774a84cc02301ebaf0e59209430.tar.gz
 f84a54fa81fd285355632ee039252853  ngx_http_redis-0.3.8.tar.gz
-4ed8d38769f8e4e0329a42b98759b87f  ngx_pagespeed-1.11.33.4-beta.tar.gz
-97f9a0e235120e459309a82986e7e2d0  ngx_pagespeed-1.12.34.2-beta.tar.gz
+40de2a0f70fd9c1a794832e6b553fce3  psol-1.13.35.2.tar.gz
 b0beb4ac8ed8fda4d49981d5d20aa7c5  njs-f7c74f0dea69846c06f0f6b1ce4294d3a6682663.tar.gz
 96322138f0b69e61b7212bc53d5e912b  openssl-1.0.2j.tar.gz
 d5ccb4cab81edc32ff99a2a46e8a9ffc  psol-1.11.33.4.tar.gz
