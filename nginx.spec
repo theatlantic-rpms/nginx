@@ -69,8 +69,8 @@ Group:             System Environment/Daemons
 License:           BSD
 URL:               http://nginx.org/
 
-Source0:           http://nginx.org/download/nginx-%{version}.tar.gz
-Source1:           http://nginx.org/download/nginx-%{version}.tar.gz.asc
+Source0:           https://nginx.org/download/nginx-%{version}.tar.gz
+Source1:           https://nginx.org/download/nginx-%{version}.tar.gz.asc
 Source10:          nginx.service
 Source11:          nginx.logrotate
 Source12:          nginx.conf
@@ -621,9 +621,6 @@ SREGEX_LIB=%{_libdir} \
     --add-dynamic-module=./replace-filter-nginx-module-%{ngx_replace_filter_sha} \
 %endif
     --with-debug \
-%if 0%{rhel} <= 6
-    --with-cc=/opt/rh/devtoolset-2/root/usr/bin/gcc \
-%endif
     --with-threads \
     --with-cc-opt="%{optflags} $(pcre-config --cflags) -fPIC" \
     --with-ld-opt="$RPM_LD_FLAGS -Wl,-E -Wl,-z,now -pie" # so the perl module finds its symbols
