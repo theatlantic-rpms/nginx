@@ -32,6 +32,7 @@ results_nginx
 /psol-*.tar.gz
 /njs-*.tar.gz
 /openssl-*.tar.gz
+/redis-nginx-module-*.tar.gz
 /redis2-nginx-module-*.tar.gz
 /replace-filter-nginx-module-*.tar.gz
 /srcache-nginx-module-*.tar.gz
