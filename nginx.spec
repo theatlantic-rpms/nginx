@@ -492,7 +492,6 @@ BuildRequires:     ruby-devel
 %setup -q -D -T -a 311
 %setup -q -D -T -a 312
 %setup -q -D -T -a 313
-%setup -q -D -T -a 314
 %setup -q -D -T -a 315
 %setup -q -D -T -a 316
 %setup -q -D -T -a 319
