@@ -435,7 +435,7 @@ BuildRequires:     sregex-devel
 %description mod-http-replace-filter
 Nginx module providing streaming regular expression replacement in response
 bodies.
-%endif  # with sregex
+%endif
 
 %package mod-selective-cache-purge
 Summary:           Nginx selective cache purge module
@@ -619,7 +619,7 @@ SREGEX_LIB=%{_libdir} \
     --add-dynamic-module=./nginx-module-vts-%{ngx_vts_sha} \
 %if %{with sregex}
     --add-dynamic-module=./replace-filter-nginx-module-%{ngx_replace_filter_sha} \
-%endif  # with sregex
+%endif
     --with-debug \
 %if 0%{rhel} <= 6
     --with-cc=/opt/rh/devtoolset-2/root/usr/bin/gcc \
@@ -657,7 +657,7 @@ install -p -d -m 0755 %{buildroot}%{_sysconfdir}/nginx/default.d
 install -p -m 0644 %{SOURCE150} %{buildroot}%{_sysconfdir}/nginx/conf.d
 sed -i "s|PASSENGER_ROOT|%{ruby_vendorlibdir}/phusion_passenger/locations.ini|" \
     %{buildroot}%{_sysconfdir}/nginx/conf.d/passenger.conf
-%endif  # with passenger
+%endif
 
 %if %{with java}
 install -p -d -m 0755 %{buildroot}%{_javadir}
@@ -757,22 +757,22 @@ echo 'load_module "%{_libdir}/nginx/modules/ngx_http_lua_cache_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-http-lua-cache.conf
 echo 'load_module "%{_libdir}/nginx/modules/ngx_http_lua_upstream_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-http-lua-upstream.conf
-%endif  # with lua
+%endif
 
 %if %{with java}
 echo 'load_module "%{_libdir}/nginx/modules/ngx_http_clojure_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-http-clojure.conf
-%endif  # with java
+%endif
 
 %if %{with passenger}
 echo 'load_module "%{_libdir}/nginx/modules/ngx_http_passenger_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-passenger.conf
-%endif  # with passenger
+%endif
 
 %if %{with sregex}
 echo 'load_module "%{_libdir}/nginx/modules/ngx_http_replace_filter_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-http-replace-filter.conf
-%endif  # with sregex
+%endif
 
 
 %pre filesystem
@@ -1027,7 +1027,7 @@ if [ $1 -eq 1 ]; then
     /sbin/service %{name} condrestart >/dev/null 2>&1 || :
 %endif
 fi
-%endif  # with lua
+%endif
 
 %if %{with java}
 %post mod-http-clojure
@@ -1038,7 +1038,7 @@ if [ $1 -eq 1 ]; then
     /sbin/service %{name} condrestart >/dev/null 2>&1 || :
 %endif
 fi
-%endif  # with java
+%endif
 
 %if %{with passenger}
 %post mod-passenger
@@ -1049,7 +1049,7 @@ if [ $1 -eq 1 ]; then
     /sbin/service %{name} condrestart >/dev/null 2>&1 || :
 %endif
 fi
-%endif  # with passenger
+%endif
 
 %if %{with sregex}
 %post mod-http-replace-filter
@@ -1060,7 +1060,7 @@ if [ $1 -eq 1 ]; then
     /sbin/service %{name} condrestart >/dev/null 2>&1 || :
 %endif
 fi
-%endif  # with sregex
+%endif
 
 
 %preun
@@ -1250,7 +1250,7 @@ fi
 %files mod-http-lua-upstream
 %{_datadir}/nginx/modules/mod-http-lua-upstream.conf
 %{_libdir}/nginx/modules/ngx_http_lua_upstream_module.so
-%endif  # with lua
+%endif
 
 %if %{with java}
 %files mod-http-clojure
@@ -1259,20 +1259,20 @@ fi
 %{_javadir}/nginx-clojure-%{ngx_clojure_jar_version}.jar
 %{_javadir}/nginx-jersey-%{ngx_clojure_jersey_version}.jar
 %{_javadir}/nginx-tomcat8-%{ngx_clojure_tomcat_version}.jar
-%endif  # with java
+%endif
 
 %if %{with passenger}
 %files mod-passenger
 %{_sysconfdir}/nginx/conf.d/passenger.conf
 %{_datadir}/nginx/modules/mod-passenger.conf
 %{_libdir}/nginx/modules/ngx_http_passenger_module.so
-%endif  # with passenger
+%endif
 
 %if %{with sregex}
 %files mod-http-replace-filter
 %{_datadir}/nginx/modules/mod-http-replace-filter.conf
 %{_libdir}/nginx/modules/ngx_http_replace_filter_module.so
-%endif  # with sregex
+%endif
 
 
 %changelog
