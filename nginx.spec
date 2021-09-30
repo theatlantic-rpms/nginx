@@ -5,10 +5,9 @@
 %bcond_without lua
 %bcond_without passenger
 %bcond_without sregex
-# This module does not currently work
-%bcond_with x_rid_header
-# This also doesn't work
-%bcond_with upstream_check
+# The built psol doesn't have a Debug release packaged, and I don't feel like
+# compiling it myself
+%bcond_with pagespeed
 
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
 %bcond_without systemd
@@ -17,34 +16,32 @@
 %endif
 
 %define ngx_sorted_query_string_version  0.3
-%define ngx_lua_version             0.10.8
-%define ngx_openssl_version         1.0.2j
-%define ngx_lua_upstream_sha        e91cf554ef0cd3d5c8e58b11888ddfe652a7497d
+%define ngx_lua_version             0.10.20
+%define ngx_openssl_version         1.1.1l
+%define ngx_lua_upstream_version    0.07
 %define ngx_lua_upstream_cache_sha  cea46bd2a940c543905583068aa1fb87845ac463
-%define ngx_cache_purge_sha         8242f745f408aa4106ba2d0e3ae7867d7de6335f
-%define ngx_rtmp_sha                5150993accb5edefa61d71e1c81ad8c02f515428
-%define ngx_srcache_sha             af82f755b8a92765fff0b3e70b26bedf4bbacadc
-%define ngx_redis2_sha              8cc7304787ae9542db4feb50d9e27beb485caa0f
-%define ngx_redis_version           0.3.8
-%define ngx_echo_version            0.60
+%define ngx_cache_purge_version     2.5.1
+%define ngx_rtmp_version            1.2.2
+%define ngx_srcache_version         0.32
+%define ngx_redis2_version          0.15
+%define ngx_redis_version           0.3.9
+%define ngx_echo_version            0.62
 %define ngx_upload_sha              57bbb0db23f113f2a8fa2d09d9193927b891fa75
-%define ngx_upload_progress_version 0.9.2
-%define ngx_headers_more_version    0.32
-%define ngx_devel_kit_sha           e443262071e759c047492be60ec7e2d73c5b57ec
-%define ngx_array_var_sha           844ccce047c104b1c47d464292cf01c926e8a6c4
-%define ngx_dyups_sha               6fa254dc551d7774a84cc02301ebaf0e59209430
-%define ngx_upstream_check_sha      d6341aeeb86911d4798fbceab35015c63178e66f
-%define ngx_njs_sha                 f7c74f0dea69846c06f0f6b1ce4294d3a6682663
-%define ngx_x_rid_sha               f3f61183d035796b4b78ad710b3a086e3d98dd82
-%define ngx_sticky_sha              08a395c66e42
+%define ngx_headers_more_version    0.33
+%define ngx_devel_kit_version       0.3.1
+%define ngx_array_var_sha           95e9fd6a96821c9e3ea9e892773ae462461a7f5c
+%define ngx_dyups_sha               139a4caadebd8ec774fe6b77236357e6b0d60ffb
+%define ngx_njs_version             0.6.2
+%define ngx_sticky_sha              b14e985ba1c71f77e155e33e9b8c558dc4e90c59
 %define ngx_rdns_sha                a32deecaf1fa4be4bd445c2b770283d20bf61da6
-%define ngx_pagespeed_version       1.13.35.2
-%define ngx_vts_version             0.1.11
+%define ngx_pagespeed_sha           4aeb203468d55e495ac9242e2c01a90da52ce5d6
+%define ngx_pagespeed_version       1.14.36.1
+%define ngx_vts_sha                 3c6cf41315bfcb48c35a3a0be81ddba6d0d01dac
 %define ngx_replace_filter_sha      2c7f0656c816e347ba43a7909120d434a168044c
-%define ngx_clojure_sha             3bd36535686d9df9c774676a7e4405cec34da9a0
-%define ngx_clojure_jar_version     0.4.5
-%define ngx_clojure_tomcat_version  0.2.3
-%define ngx_clojure_jersey_version  0.1.4
+%define ngx_clojure_version         0.5.2
+%define ngx_clojure_jar_version     0.5.2
+%define ngx_clojure_tomcat_version  0.2.7
+%define ngx_clojure_jersey_version  0.1.7
 
 %define luajit_inc /usr/include/luajit-2.1
 %define luajit_lib /usr/lib64
@@ -62,7 +59,7 @@
 
 Name:              nginx
 Epoch:             200
-Version:           1.14.2
+Version:           1.21.3
 Release:           0%{?dist}
 
 Summary:           A high performance web server and reverse proxy server
@@ -91,30 +88,26 @@ Source200:         README.dynamic
 Source300: https://github.com/openresty/lua-nginx-module/archive/v%{ngx_lua_version}.tar.gz#/lua-nginx-module-%{ngx_lua_version}.tar.gz
 Source301: https://github.com/openresty/headers-more-nginx-module/archive/v%{ngx_headers_more_version}.tar.gz#/headers-more-nginx-module-v%{ngx_headers_more_version}.tar.gz
 Source302: https://github.com/cloudflare/lua-nginx-cache-module/archive/%{ngx_lua_upstream_cache_sha}.tar.gz#/lua-upstream-cache-nginx-module-%{ngx_lua_upstream_cache_sha}.tar.gz
-Source303: https://github.com/simpl/ngx_devel_kit/archive/%{ngx_devel_kit_sha}.tar.gz#/ngx_devel_kit-%{ngx_devel_kit_sha}.tar.gz
+Source303: https://github.com/vision5/ngx_devel_kit/archive/v%{ngx_devel_kit_version}.tar.gz#/ngx_devel_kit-v%{ngx_devel_kit_version}.tar.gz
 Source304: https://github.com/wandenberg/nginx-sorted-querystring-module/archive/%{ngx_sorted_query_string_version}.tar.gz#/nginx-sorted-querystring-module-%{ngx_sorted_query_string_version}.tar.gz
-Source305: https://github.com/arut/nginx-rtmp-module/archive/%{ngx_rtmp_sha}.tar.gz#/nginx-rtmp-module-%{ngx_rtmp_sha}.tar.gz
-Source306: https://github.com/nginx-modules/ngx_cache_purge/archive/%{ngx_cache_purge_sha}.tar.gz#/ngx_cache_purge-%{ngx_cache_purge_sha}.tar.gz
-Source307: https://github.com/nginx-clojure/nginx-clojure/archive/%{ngx_clojure_sha}.tar.gz#/nginx-clojure-%{ngx_clojure_sha}.tar.gz
+Source305: https://github.com/arut/nginx-rtmp-module/archive/v%{ngx_rtmp_version}.tar.gz#/nginx-rtmp-module-v%{ngx_rtmp_version}.tar.gz
+Source306: https://github.com/nginx-modules/ngx_cache_purge/archive/%{ngx_cache_purge_version}.tar.gz#/ngx_cache_purge-%{ngx_cache_purge_version}.tar.gz
+Source307: https://github.com/nginx-clojure/nginx-clojure/archive/v%{ngx_clojure_version}.tar.gz#/nginx-clojure-v%{ngx_clojure_version}.tar.gz
 Source308: https://github.com/openresty/array-var-nginx-module/archive/%{ngx_array_var_sha}.tar.gz#/array-var-nginx-module-%{ngx_array_var_sha}.tar.gz
-Source309: https://github.com/openresty/srcache-nginx-module/archive/%{ngx_srcache_sha}.tar.gz#/srcache-nginx-module-%{ngx_srcache_sha}.tar.gz
-Source310: https://github.com/openresty/redis2-nginx-module/archive/%{ngx_redis2_sha}.tar.gz#/redis2-nginx-module-%{ngx_redis2_sha}.tar.gz
+Source309: https://github.com/openresty/srcache-nginx-module/archive/v%{ngx_srcache_version}.tar.gz#/srcache-nginx-module-v%{ngx_srcache_version}.tar.gz
+Source310: https://github.com/openresty/redis2-nginx-module/archive/v%{ngx_redis2_version}.tar.gz#/redis2-nginx-module-v%{ngx_redis2_version}.tar.gz
 Source311: https://github.com/yzprofile/ngx_http_dyups_module/archive/%{ngx_dyups_sha}.tar.gz#/ngx_http_dyups_module-%{ngx_dyups_sha}.tar.gz
-Source312: https://github.com/openresty/lua-upstream-nginx-module/archive/%{ngx_lua_upstream_sha}.tar.gz#/lua-upstream-nginx-module-%{ngx_lua_upstream_sha}.tar.gz
+Source312: https://github.com/openresty/lua-upstream-nginx-module/archive/v%{ngx_lua_upstream_version}.tar.gz#/lua-upstream-nginx-module-v%{ngx_lua_upstream_version}.tar.gz
 Source313: https://github.com/openresty/echo-nginx-module/archive/v%{ngx_echo_version}.tar.gz#/echo-nginx-module-v%{ngx_echo_version}.tar.gz
-Source314: https://github.com/yaoweibin/nginx_upstream_check_module/archive/%{ngx_upstream_check_sha}.tar.gz#/nginx_upstream_check_module-%{ngx_upstream_check_sha}.tar.gz
-Source315: https://github.com/nginx/njs/archive/%{ngx_njs_sha}.tar.gz#/njs-%{ngx_njs_sha}.tar.gz
+Source315: https://github.com/nginx/njs/archive/%{ngx_njs_version}.tar.gz#/njs-%{ngx_njs_version}.tar.gz
 Source316: https://github.com/fdintino/nginx-upload-module/archive/%{ngx_upload_sha}.tar.gz#/nginx-upload-module-%{ngx_upload_sha}.tar.gz
-Source317: https://github.com/masterzen/nginx-upload-progress-module/archive/v%{ngx_upload_progress_version}.tar.gz#/nginx-upload-progress-module-v%{ngx_upload_progress_version}.tar.gz
-Source318: https://github.com/kriegsmanj/nginx-x-rid-header/archive/%{ngx_x_rid_sha}.tar.gz#/nginx-x-rid-header-%{ngx_x_rid_sha}.tar.gz
-Source319: https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng/get/%{ngx_sticky_sha}.tar.gz#/nginx-goodies-nginx-sticky-module-ng-%{ngx_sticky_sha}.tar.gz
+Source319: https://github.com/Refinitiv/nginx-sticky-module-ng/archive/%{ngx_sticky_sha}.tar.gz#/nginx-sticky-module-ng-%{ngx_sticky_sha}.tar.gz
 Source320: https://github.com/flant/nginx-http-rdns/archive/%{ngx_rdns_sha}.tar.gz#/nginx-http-rdns-%{ngx_rdns_sha}.tar.gz
-Source321: https://github.com/apache/incubator-pagespeed-ngx/archive/v%{ngx_pagespeed_version}-stable.tar.gz#/incubator-pagespeed-ngx-%{ngx_pagespeed_version}-stable.tar.gz
-Source322: https://dl.google.com/dl/page-speed/psol/%{ngx_pagespeed_version}-x64.tar.gz#/psol-%{ngx_pagespeed_version}.tar.gz
-Source323: https://github.com/vozlt/nginx-module-vts/archive/v%{ngx_vts_version}.tar.gz#/nginx-module-vts-%{ngx_vts_version}.tar.gz
+Source321: https://github.com/apache/incubator-pagespeed-ngx/archive/%{ngx_pagespeed_sha}.tar.gz#/incubator-pagespeed-ngx-%{ngx_pagespeed_sha}.tar.gz
+Source322: https://dist.apache.org/repos/dist/release/incubator/pagespeed/%{ngx_pagespeed_version}/x64/psol-%{ngx_pagespeed_version}-apache-incubating-x64.tar.gz#/psol-%{ngx_pagespeed_version}.tar.gz
+Source323: https://github.com/vozlt/nginx-module-vts/archive/%{ngx_vts_sha}.tar.gz#/nginx-module-vts-%{ngx_vts_sha}.tar.gz
 Source324: https://github.com/openresty/replace-filter-nginx-module/archive/%{ngx_replace_filter_sha}.tar.gz#/replace-filter-nginx-module-%{ngx_replace_filter_sha}.tar.gz
-Source330: http://people.freebsd.org/~osa/ngx_http_redis-%{ngx_redis_version}.tar.gz
-
+Source330: https://github.com/onnimonni/redis-nginx-module/archive/v%{ngx_redis_version}.tar.gz#/redis-nginx-module-v%{ngx_redis_version}.tar.gz
 Source400: https://openssl.org/source/openssl-%{ngx_openssl_version}.tar.gz
 %if %{with java}
 Source401: https://clojars.org/repo/nginx-clojure/nginx-tomcat8/%{ngx_clojure_tomcat_version}/nginx-tomcat8-%{ngx_clojure_tomcat_version}.jar
@@ -126,18 +119,12 @@ Source403: https://clojars.org/repo/nginx-clojure/nginx-clojure/%{ngx_clojure_ja
 # -D_FORTIFY_SOURCE=2 causing warnings to turn into errors.
 Patch0:            nginx-auto-cc-gcc.patch
 
-Patch101: nginx-upstream-check-changes.patch
 Patch102: lua-upstream-cache-nginx-module.dynamic-module.patch
 Patch103: nginx-sticky.dynamic-module.patch
-Patch117: ngx_http_dyups.dynamic-module.patch
-Patch118: ngx_http_dyups.segfault-fix.patch
-Patch119: lua-nginx-module.fixes.patch
-Patch120: echo-nginx-module.fixes.patch
 
-# https://raw.githubusercontent.com/openresty/openresty/dbccee1418ddb24a2adabd80b0737595b7fd577e/patches/nginx-1.11.2-ssl_cert_cb_yield.patch
-Patch201: nginx-1.11.2-ssl_cert_cb_yield.patch
-# https://raw.githubusercontent.com/openresty/openresty/dbccee1418ddb24a2adabd80b0737595b7fd577e/patches/nginx-1.11.2-ssl_pending_session.patch
-Patch202: nginx-1.11.2-ssl_pending_session.patch
+# downstream patch - fix PIDFile race condition (rhbz#1869026)
+# rejected upstream: https://trac.nginx.org/nginx/ticket/1897
+Patch201: 0002-fix-PIDFile-handling.patch
 
 %if 0%{?with_gperftools}
 BuildRequires:     gperftools-devel
@@ -176,10 +163,6 @@ Requires(postun):  initscripts
 Nginx is a web server and a reverse proxy server for HTTP, SMTP, POP3 and
 IMAP protocols, with a strong focus on high concurrency, performance and low
 memory usage.
-%if %{with upstream_check}
-
-Comes bundled with ngx_http_dyups_module and ngx_http_upstream_check_module
-%endif
 
 %package all-modules
 Group:             System Environment/Daemons
@@ -390,16 +373,6 @@ Requires:          nginx = %{epoch}:%{version}-%{release}
 A module for nginx web server for handling file uploads using
 multipart/form-data encoding (RFC 1867).
 
-%package mod-http-uploadprogress
-Summary:           Nginx HTTP upload progress module
-Group:             System Environment/Daemons
-URL:               http://wiki.codemongers.com/NginxHttpUploadProgressModule
-Requires:          nginx = %{epoch}:%{version}-%{release}
-
-%description mod-http-uploadprogress
-Nginx module implementing an upload progress system, that monitors RFC1867
-POST uploads as they are transmitted to upstream servers.
-
 %if %{with java}
 %package mod-http-clojure
 Summary:           Nginx HTTP Clojure module
@@ -422,6 +395,7 @@ Requires:          nginx = %{epoch}:%{version}-%{release}
 %description mod-http-vts
 %{summary}.
 
+%if %{with pagespeed}
 %package mod-pagespeed
 Summary:           Nginx PageSpeed module
 Group:             System Environment/Daemons
@@ -432,6 +406,7 @@ BuildRequires: devtoolset-2-gcc-c++ devtoolset-2-binutils
 
 %description mod-pagespeed
 Automatic PageSpeed optimization module for Nginx.
+%endif
 
 %package mod-http-rdns
 Summary:           Nginx HTTP rDNS module
@@ -441,18 +416,13 @@ Requires:          nginx = %{epoch}:%{version}-%{release}
 %description mod-http-rdns
 %{summary}.
 
-%if !%{with upstream_check}
 %package mod-http-dyups
 Summary:           Nginx HTTP Dynamic Upstreams module
 Group:             System Environment/Daemons
 Requires:          nginx = %{epoch}:%{version}-%{release}
-# %if %{with lua}
-# Requires:          nginx-mod-http-lua
-# %endif
 
 %description mod-http-dyups
 %{summary}.
-%endif
 
 %if %{with sregex}
 %package mod-http-replace-filter
@@ -483,17 +453,6 @@ Requires:          nginx = %{epoch}:%{version}-%{release}
 %description mod-http-sticky
 Nginx module to add a sticky cookie to be always forwarded to the same
 upstream server.
-
-%if %{with x_rid_header}
-%package mod-x-rid-header
-Summary:           Nginx X-RID header module
-Group:             System Environment/Daemons
-Requires:          nginx = %{epoch}:%{version}-%{release}
-
-%description mod-x-rid-header
-Nginx module that adds a request id header that can be used to correlate
-frontend and backend requests.
-%endif
 
 %package mod-njs
 Summary:           Nginx HTTP and Stream JavaScript modules
@@ -536,8 +495,6 @@ BuildRequires:     ruby-devel
 %setup -q -D -T -a 314
 %setup -q -D -T -a 315
 %setup -q -D -T -a 316
-%setup -q -D -T -a 317
-%setup -q -D -T -a 318
 %setup -q -D -T -a 319
 %setup -q -D -T -a 320
 %setup -q -D -T -a 321
@@ -546,20 +503,17 @@ BuildRequires:     ruby-devel
 %setup -q -D -T -a 324
 %setup -q -D -T -a 330
 %setup -q -D -T -a 400
-%patch0 -p0
-%patch101 -d ./nginx_upstream_check_module-%{ngx_upstream_check_sha} -p1
+%patch0 -p1
 %patch102 -d ./lua-upstream-cache-nginx-module-%{ngx_lua_upstream_cache_sha} -p1
-%patch103 -d ./nginx-goodies-nginx-sticky-module-ng-%{ngx_sticky_sha} -p1
-%patch117 -d ./ngx_http_dyups_module-%{ngx_dyups_sha} -p1
-%patch118 -d ./ngx_http_dyups_module-%{ngx_dyups_sha} -p1
-%patch119 -d ./lua-nginx-module-%{ngx_lua_version} -p1
-%patch120 -d ./echo-nginx-module-%{ngx_echo_version} -p1
+%patch103 -d ./nginx-sticky-module-ng-%{ngx_sticky_sha} -p1
 %patch201 -p1
-%patch202 -p1
-%if %{with upstream_check}
-patch -p0 < ./nginx_upstream_check_module-%{ngx_upstream_check_sha}/check_1.11.5+.patch
+
+%if %{with pagespeed}
+cp -a psol/lib/Release psol/lib/Debug
+cp -a psol/include/out/Release psol/include/out/Debug
+mv psol incubator-pagespeed-ngx-%{ngx_pagespeed_sha}
 %endif
-mv psol incubator-pagespeed-ngx-%{ngx_pagespeed_version}-stable
+
 cp %{SOURCE200} .
 
 %if 0%{?rhel} < 8
@@ -569,7 +523,7 @@ sed -i -e 's#PROFILE=SYSTEM#HIGH:!aNULL:!MD5#' %{SOURCE12}
 
 
 %build
-pushd njs-%{ngx_njs_sha}
+pushd njs-%{ngx_njs_version}
 ./configure
 make %{?_smp_mflags}
 popd
@@ -599,6 +553,7 @@ SREGEX_LIB=%{_libdir} \
     --lock-path=/run/lock/subsys/nginx \
     --user=%{nginx_user} \
     --group=%{nginx_user} \
+    --with-compat \
 %if 0%{?with_aio}
     --with-file-aio \
 %endif
@@ -607,6 +562,7 @@ SREGEX_LIB=%{_libdir} \
     --with-http_v2_module \
     --with-http_realip_module \
     --with-http_addition_module \
+    --with-http_auth_request_module \
     --with-http_xslt_module=dynamic \
     --with-http_image_filter_module=dynamic \
     --with-http_geoip_module=dynamic \
@@ -628,6 +584,7 @@ SREGEX_LIB=%{_libdir} \
     --with-pcre-jit \
     --with-stream=dynamic \
     --with-stream_ssl_module \
+    --with-stream_ssl_preread_module \
 %if 0%{?with_gperftools}
     --with-google_perftools_module \
 %endif
@@ -635,39 +592,32 @@ SREGEX_LIB=%{_libdir} \
     --add-dynamic-module=$(passenger-config --nginx-addon-dir) \
 %endif
 %if %{with lua}
-    --add-dynamic-module=./lua-upstream-nginx-module-%{ngx_lua_upstream_sha} \
+    --add-dynamic-module=./lua-upstream-nginx-module-%{ngx_lua_upstream_version} \
     --add-dynamic-module=./lua-nginx-module-%{ngx_lua_version} \
     --add-dynamic-module=./lua-upstream-cache-nginx-module-%{ngx_lua_upstream_cache_sha} \
 %endif
 %if %{with java}
-    --add-dynamic-module=./nginx-clojure-%{ngx_clojure_sha}/src/c \
+    --add-dynamic-module=./nginx-clojure-%{ngx_clojure_version}/src/c \
 %endif
     --add-dynamic-module=./headers-more-nginx-module-%{ngx_headers_more_version} \
-    --add-dynamic-module=./ngx_devel_kit-%{ngx_devel_kit_sha} \
+    --add-dynamic-module=./ngx_devel_kit-%{ngx_devel_kit_version} \
     --add-dynamic-module=./nginx-sorted-querystring-module-%{ngx_sorted_query_string_version} \
-    --add-dynamic-module=./nginx-rtmp-module-%{ngx_rtmp_sha} \
-    --add-dynamic-module=./ngx_cache_purge-%{ngx_cache_purge_sha} \
+    --add-dynamic-module=./nginx-rtmp-module-%{ngx_rtmp_version} \
+    --add-dynamic-module=./ngx_cache_purge-%{ngx_cache_purge_version} \
     --add-dynamic-module=./array-var-nginx-module-%{ngx_array_var_sha} \
-    --add-dynamic-module=./srcache-nginx-module-%{ngx_srcache_sha} \
-    --add-dynamic-module=./redis2-nginx-module-%{ngx_redis2_sha} \
-    --add-dynamic-module=./ngx_http_redis-%{ngx_redis_version} \
+    --add-dynamic-module=./srcache-nginx-module-%{ngx_srcache_version} \
+    --add-dynamic-module=./redis2-nginx-module-%{ngx_redis2_version} \
+    --add-dynamic-module=./redis-nginx-module-%{ngx_redis_version} \
     --add-dynamic-module=./echo-nginx-module-%{ngx_echo_version} \
-%if %{with upstream_check}
-    --add-module=./ngx_http_dyups_module-%{ngx_dyups_sha} \
-    --add-module=./nginx_upstream_check_module-%{ngx_upstream_check_sha} \
-%else
     --add-dynamic-module=./ngx_http_dyups_module-%{ngx_dyups_sha} \
-%endif
-    --add-dynamic-module=./njs-%{ngx_njs_sha}/nginx \
+    --add-dynamic-module=./njs-%{ngx_njs_version}/nginx \
     --add-dynamic-module=./nginx-upload-module-%{ngx_upload_sha} \
-    --add-dynamic-module=./nginx-upload-progress-module-%{ngx_upload_progress_version} \
-%if %{with x_rid_header}
-    --add-dynamic-module=./nginx-x-rid-header-%{ngx_x_rid_sha} \
-%endif
-    --add-dynamic-module=./nginx-goodies-nginx-sticky-module-ng-%{ngx_sticky_sha} \
+    --add-dynamic-module=./nginx-sticky-module-ng-%{ngx_sticky_sha} \
     --add-dynamic-module=./nginx-http-rdns-%{ngx_rdns_sha} \
-    --add-dynamic-module=./incubator-pagespeed-ngx-%{ngx_pagespeed_version}-stable \
-    --add-dynamic-module=./nginx-module-vts-%{ngx_vts_version} \
+%if %{with pagespeed}
+    --add-dynamic-module=./incubator-pagespeed-ngx-%{ngx_pagespeed_sha} \
+%endif
+    --add-dynamic-module=./nginx-module-vts-%{ngx_vts_sha} \
 %if %{with sregex}
     --add-dynamic-module=./replace-filter-nginx-module-%{ngx_replace_filter_sha} \
 %endif  # with sregex
@@ -675,6 +625,7 @@ SREGEX_LIB=%{_libdir} \
 %if 0%{rhel} <= 6
     --with-cc=/opt/rh/devtoolset-2/root/usr/bin/gcc \
 %endif
+    --with-threads \
     --with-cc-opt="%{optflags} $(pcre-config --cflags) -fPIC" \
     --with-ld-opt="$RPM_LD_FLAGS -Wl,-E -Wl,-z,now -pie" # so the perl module finds its symbols
 
@@ -783,12 +734,12 @@ echo 'load_module "%{_libdir}/nginx/modules/ngx_http_echo_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-http-echo.conf
 echo 'load_module "%{_libdir}/nginx/modules/ngx_http_upload_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-http-upload.conf
-echo 'load_module "%{_libdir}/nginx/modules/ngx_http_uploadprogress_module.so";' \
-    > %{buildroot}%{_datadir}/nginx/modules/mod-http-uploadprogress.conf
 echo 'load_module "%{_libdir}/nginx/modules/ngx_http_vhost_traffic_status_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-http-vts.conf
+%if %{with pagespeed}
 echo 'load_module "%{_libdir}/nginx/modules/ngx_pagespeed.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-pagespeed.conf
+%endif
 echo 'load_module "%{_libdir}/nginx/modules/ngx_http_rdns_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-http-rdns.conf
 echo 'load_module "%{_libdir}/nginx/modules/ngx_http_sticky_module.so";' \
@@ -797,16 +748,8 @@ echo 'load_module "%{_libdir}/nginx/modules/ngx_http_js_module.so";' \
     > %{buildroot}%{_datadir}/nginx/modules/mod-njs.conf
 echo 'load_module "%{_libdir}/nginx/modules/ngx_stream_js_module.so";' \
     >> %{buildroot}%{_datadir}/nginx/modules/mod-njs.conf
-
-%if !%{with upstream_check}
 echo 'load_module "%{_libdir}/nginx/modules/ngx_http_dyups_module.so";' \
     >> %{buildroot}%{_datadir}/nginx/modules/mod-http-dyups.conf
-%endif
-
-%if %{with x_rid_header}
-echo 'load_module "%{_libdir}/nginx/modules/ngx_x_rid_header_module.so";' \
-    > %{buildroot}%{_datadir}/nginx/modules/mod-x-rid-header.conf
-%endif  # with x_rid_header
 
 %if %{with lua}
 echo 'load_module "%{_libdir}/nginx/modules/ngx_http_lua_module.so";' \
@@ -1002,15 +945,6 @@ if [ $1 -eq 1 ]; then
 %endif
 fi
 
-%post mod-http-uploadprogress
-if [ $1 -eq 1 ]; then
-%if %{with systemd}
-    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
-%else
-    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
-%endif
-fi
-
 %post mod-http-vts
 if [ $1 -eq 1 ]; then
 %if %{with systemd}
@@ -1020,6 +954,7 @@ if [ $1 -eq 1 ]; then
 %endif
 fi
 
+%if %{with pagespeed}
 %post mod-pagespeed
 if [ $1 -eq 1 ]; then
 %if %{with systemd}
@@ -1028,6 +963,7 @@ if [ $1 -eq 1 ]; then
     /sbin/service %{name} condrestart >/dev/null 2>&1 || :
 %endif
 fi
+%endif
 
 %post mod-http-rdns
 if [ $1 -eq 1 ]; then
@@ -1056,7 +992,6 @@ if [ $1 -eq 1 ]; then
 %endif
 fi
 
-%if !%{with upstream_check}
 %post mod-http-dyups
 if [ $1 -eq 1 ]; then
 %if %{with systemd}
@@ -1065,18 +1000,6 @@ if [ $1 -eq 1 ]; then
     /sbin/service %{name} condrestart >/dev/null 2>&1 || :
 %endif
 fi
-%endif
-
-%if %{with x_rid_header}
-%post mod-x-rid-header
-if [ $1 -eq 1 ]; then
-%if %{with systemd}
-    /usr/bin/systemctl reload %{name}.service >/dev/null 2>&1 || :
-%else
-    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
-%endif
-fi
-%endif  # with x_rid_header
 
 %if %{with lua}
 %post mod-http-lua
@@ -1289,17 +1212,15 @@ fi
 %{_datadir}/nginx/modules/mod-http-upload.conf
 %{_libdir}/nginx/modules/ngx_http_upload_module.so
 
-%files mod-http-uploadprogress
-%{_datadir}/nginx/modules/mod-http-uploadprogress.conf
-%{_libdir}/nginx/modules/ngx_http_uploadprogress_module.so
-
 %files mod-http-vts
 %{_datadir}/nginx/modules/mod-http-vts.conf
 %{_libdir}/nginx/modules/ngx_http_vhost_traffic_status_module.so
 
+%if %{with pagespeed}
 %files mod-pagespeed
 %{_datadir}/nginx/modules/mod-pagespeed.conf
 %{_libdir}/nginx/modules/ngx_pagespeed.so
+%endif
 
 %files mod-http-rdns
 %{_datadir}/nginx/modules/mod-http-rdns.conf
@@ -1314,17 +1235,9 @@ fi
 %{_libdir}/nginx/modules/ngx_http_js_module.so
 %{_libdir}/nginx/modules/ngx_stream_js_module.so
 
-%if !%{with upstream_check}
 %files mod-http-dyups
 %{_datadir}/nginx/modules/mod-http-dyups.conf
 %{_libdir}/nginx/modules/ngx_http_dyups_module.so
-%endif
-
-%if %{with x_rid_header}
-%files mod-x-rid-header
-%{_datadir}/nginx/modules/mod-x-rid-header.conf
-%{_libdir}/nginx/modules/ngx_x_rid_header_module.so
-%endif  # with x_rid_header
 
 %if %{with lua}
 %files mod-http-lua
@@ -1364,6 +1277,29 @@ fi
 
 
 %changelog
+* Wed Sep 29 2021 Frankie Dintino <fdintino@theatlantic.com> - 200:1.21.3-0
+- Update nginx to 1.21.3
+- Update embedded openssl to 1.1.1l
+- Update lua-nginx-module to 0.10.20
+- Update lua-upstream-nginx-module to 0.07
+- Update ngx_cache_purge to 2.5.1
+- Update nginx-rtmp-module to 1.2.2
+- Update srcache-nginx-module to 0.32
+- Update redis2-nginx-module to 0.15
+- Update redis-nginx-module to 0.3.9
+- Update echo-nginx-module to 0.62
+- Update headers-more-nginx-module to 0.33
+- Update ngx_devel_kit to 0.3.1
+- Update array-var-nginx-module to git-20210708-95e9fd6
+- Update ngx_http_dyups_module to git-20190825-139a4ca
+- Update njs to 0.6.2
+- Update nginx-sticky-module-ng to git-20191205-b14e985
+- Update nginx-module-vts to git-20210209-3c6cf41
+- Update nginx-clojure to 0.5.2
+- Disable nginx-pagespeed build
+- Remove nginx-upstream-check
+- Remove nginx-x-rid-header
+
 * Mon Dec 10 2018 Mike Howsden <mhowsden@theatlantic.com> - 200:1.14.2-0
 - Update to 1.14.2
 - Update ngx-pagespeed to 1.13.35.2
